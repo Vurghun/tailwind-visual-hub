@@ -3,6 +3,15 @@
 import * as React from "react";
 import { Copy, Check, FloppyDisk, CircleNotch } from "@phosphor-icons/react";
 
+import {
+  uiBadge,
+  uiInput,
+  uiInputSm,
+  uiKbd,
+  uiPanelMuted,
+  uiSuccess,
+  uiTextarea,
+} from "@/lib/ui";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -26,12 +35,10 @@ export function SliderRow({
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <label className="text-xs font-medium text-muted-foreground">
-          {label}
-        </label>
-        <span className="rounded-none bg-muted px-1.5 py-0.5 font-mono text-xs tabular-nums text-foreground">
+    <div className="flex flex-col gap-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <label className="text-xs font-medium text-foreground">{label}</label>
+        <span className={cn(uiBadge, "font-mono tabular-nums")}>
           {value}
           {unit}
         </span>
@@ -58,18 +65,16 @@ export function ColorRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <label className="text-xs font-medium text-muted-foreground">
-        {label}
-      </label>
+      <label className="text-xs font-medium text-foreground">{label}</label>
       <div className="flex items-center gap-2">
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           spellCheck={false}
-          className="h-7 w-24 rounded-none border border-border bg-background px-2 font-mono text-xs uppercase outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
+          className={cn(uiInputSm, "h-8 w-24 font-mono uppercase")}
         />
-        <div className="relative size-7 shrink-0 overflow-hidden rounded-none border border-border">
+        <div className="relative size-8 shrink-0 overflow-hidden rounded-md border border-input shadow-xs">
           <input
             type="color"
             value={value}
@@ -98,7 +103,7 @@ export function CodeBlock({
   }, [copied]);
 
   return (
-    <div className="relative mt-1 rounded-none border border-border bg-muted/40">
+    <div className={cn(uiPanelMuted, "relative mt-1 overflow-hidden p-0")}>
       <pre className="overflow-x-auto p-4 pr-24 font-mono text-xs leading-relaxed text-foreground">
         <code className="break-words whitespace-pre-wrap">{code}</code>
       </pre>
@@ -109,10 +114,10 @@ export function CodeBlock({
           onCopy(code);
           setCopied(true);
         }}
-        className="absolute right-2 top-2 gap-1.5"
+        className="absolute right-2 top-2 gap-1.5 shadow-xs"
       >
         {copied ? (
-          <Check weight="bold" className="size-3.5 text-emerald-500" />
+          <Check weight="bold" className={cn("size-3.5", uiSuccess)} />
         ) : (
           <Copy weight="bold" className="size-3.5" />
         )}
@@ -137,16 +142,14 @@ export function TextRow({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-muted-foreground">
-        {label}
-      </label>
+      <label className="text-xs font-medium text-foreground">{label}</label>
       {multiline ? (
         <textarea
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
           rows={2}
-          className="resize-none rounded-none border border-border bg-background px-2.5 py-1.5 text-xs outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
+          className={uiTextarea}
         />
       ) : (
         <input
@@ -154,7 +157,7 @@ export function TextRow({
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className="h-8 rounded-none border border-border bg-background px-2.5 text-xs outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
+          className={uiInputSm}
         />
       )}
     </div>
@@ -171,7 +174,7 @@ export function ToggleRow({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/20 px-3 py-2.5">
       <label className="text-xs font-medium text-foreground">{label}</label>
       <Switch checked={checked} onCheckedChange={onChange} />
     </div>
@@ -191,9 +194,7 @@ export function SegmentedRow<T extends string>({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-xs font-medium text-muted-foreground">
-        {label}
-      </label>
+      <label className="text-xs font-medium text-foreground">{label}</label>
       <div
         className="grid gap-2"
         style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0,1fr))` }}
@@ -204,7 +205,7 @@ export function SegmentedRow<T extends string>({
             size="sm"
             variant={value === o.value ? "default" : "outline"}
             onClick={() => onChange(o.value)}
-            className={cn("capitalize")}
+            className="capitalize shadow-xs"
           >
             {o.label}
           </Button>
@@ -233,14 +234,14 @@ export function SaveBar({
         onChange={(e) => onNameChange(e.target.value)}
         placeholder="Name this design (optional)"
         spellCheck={false}
-        className="h-8 flex-1 rounded-none border border-border bg-background px-2.5 text-xs outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
+        className={cn(uiInputSm, "flex-1 sm:min-w-0")}
       />
       <Button
         size="lg"
         variant="default"
         onClick={onSave}
         disabled={saving}
-        className="gap-1.5"
+        className="gap-1.5 shadow-sm"
       >
         {saving ? (
           <CircleNotch weight="bold" className="size-3.5 animate-spin" />
@@ -255,13 +256,13 @@ export function SaveBar({
 
 export function AdSlot({ label }: { label: string }) {
   return (
-    <div className="flex h-[250px] w-full items-center justify-center rounded-none border border-dashed border-border bg-zinc-200/60 dark:bg-zinc-800/40">
-      <div className="flex flex-col items-center gap-1 text-center">
-        <span className="rounded-none bg-zinc-300 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
-          Advertisement
-        </span>
-        <span className="text-xs text-zinc-500 dark:text-zinc-400">{label}</span>
+    <div className="flex min-h-[220px] w-full items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 p-6 ring-1 ring-foreground/5">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <span className={uiBadge}>Advertisement</span>
+        <span className="max-w-sm text-xs text-muted-foreground">{label}</span>
       </div>
     </div>
   );
 }
+
+export { uiKbd };

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Check, Warning } from "@phosphor-icons/react";
 
+import { uiPanel, uiSuccess, uiWarning } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
 export type ToastState = { msg: string; ok: boolean } | null;
@@ -35,11 +36,16 @@ export function Toast({ toast }: { toast: ToastState }) {
           : "pointer-events-none translate-y-3 opacity-0"
       )}
     >
-      <div className="flex items-center gap-2 rounded-none border border-border bg-foreground px-3 py-2 text-xs font-medium text-background shadow-lg">
+      <div
+        className={cn(
+          uiPanel,
+          "flex items-center gap-2 px-4 py-2.5 text-sm font-medium shadow-md"
+        )}
+      >
         {toast?.ok ? (
-          <Check weight="bold" className="size-4 text-emerald-500" />
+          <Check weight="bold" className={cn("size-4", uiSuccess)} />
         ) : (
-          <Warning weight="bold" className="size-4 text-amber-500" />
+          <Warning weight="bold" className={cn("size-4", uiWarning)} />
         )}
         {toast?.msg}
       </div>

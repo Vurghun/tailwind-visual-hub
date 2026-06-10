@@ -71,6 +71,7 @@ import { LandingSidebarLook } from "@/components/tools/landing-sidebar-look";
 import { LandingTemplateGallery } from "@/components/tools/landing-template-gallery";
 import { LandingPublishPanel } from "@/components/tools/landing-publish-panel";
 import { TEMPLATE_CATALOG } from "@/lib/landing-template-catalog";
+import { uiInputSm, uiToolbar } from "@/lib/ui";
 import {
   DEFAULT_FAQ,
   DEFAULT_LOGOS,
@@ -309,15 +310,15 @@ function IntroBanner() {
   };
 
   const steps = [
-    "Templates tab: pick SaaS, Startup, Agency, Portfolio, or Blank.",
+    "Templates tab: pick from 17 layouts or start blank.",
     "Build tab: add blocks or edit what the template gave you.",
     "Share tab: save, export HTML, or copy a preview link.",
   ];
 
   return (
-    <Card className="mb-6 border-primary/30">
+    <Card className="mb-6 border-primary/25 bg-primary/[0.03] shadow-sm">
       <CardContent className="flex items-start gap-4 py-4">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-none bg-primary text-primary-foreground">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
           <Lightning weight="fill" className="size-4" />
         </div>
         <div className="flex-1">
@@ -337,7 +338,7 @@ function IntroBanner() {
           type="button"
           onClick={dismiss}
           aria-label="Dismiss"
-          className="flex size-6 items-center justify-center rounded-none text-muted-foreground hover:text-foreground"
+          className="flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <X weight="bold" className="size-4" />
         </button>
@@ -652,20 +653,11 @@ export function LandingBuilder({
 
   return (
     <>
-      <div className="mb-6">
-        <h1 className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
-          Website Builder
-        </h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Start from a template or build block-by-block. Four tabs: Build, Templates, Look, Share.
-        </p>
-      </div>
-
       <IntroBanner />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,300px)_minmax(0,1fr)] md:items-start lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
         {/* Controls — grouped into tabs + independently scrollable */}
-        <div className="md:sticky md:top-20 md:max-h-[calc(100vh-6rem)] md:overflow-y-auto md:pr-1.5">
+        <div className="scroll-panel md:sticky md:top-20 md:max-h-[calc(100vh-6rem)] md:pr-1.5">
           <Tabs defaultValue="build" className="gap-4">
             <TabsList className="grid h-auto w-full grid-cols-2 gap-1 sm:grid-cols-4">
               <TabsTrigger value="build" className="gap-1.5">
@@ -737,7 +729,7 @@ export function LandingBuilder({
         {/* Preview — pinned so the work area is always on screen */}
         <div className="flex flex-col gap-4 md:sticky md:top-20">
           {/* Always-visible action toolbar */}
-          <div className="flex flex-wrap items-center gap-2 rounded-none border border-border bg-card p-2">
+          <div className={uiToolbar}>
             <div className="flex items-center gap-0.5">
               <Button
                 size="icon-sm"
@@ -766,7 +758,7 @@ export function LandingBuilder({
               onChange={(e) => setName(e.target.value)}
               placeholder="Name this page (optional)"
               spellCheck={false}
-              className="h-8 min-w-0 flex-1 rounded-none border border-border bg-background px-2.5 text-xs outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
+              className={uiInputSm + " min-w-0 flex-1"}
             />
             <Button
               size="lg"
@@ -804,14 +796,14 @@ export function LandingBuilder({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="overflow-hidden rounded-none border border-border">
-                <div className="flex items-center gap-2 border-b border-border bg-muted/60 px-3 py-2">
+              <div className="preview-frame">
+                <div className="preview-chrome">
                   <div className="flex gap-1.5">
-                    <span className="size-3 rounded-full bg-red-400" />
-                    <span className="size-3 rounded-full bg-amber-400" />
-                    <span className="size-3 rounded-full bg-green-400" />
+                    <span className="size-3 rounded-full bg-destructive/80" />
+                    <span className="size-3 rounded-full bg-warning/80" />
+                    <span className="size-3 rounded-full bg-success/80" />
                   </div>
-                  <div className="ml-2 flex h-6 min-w-0 flex-1 items-center rounded-none border border-border bg-background px-2 font-mono text-[10px] text-muted-foreground">
+                  <div className="ml-1 flex h-7 min-w-0 flex-1 items-center rounded-md border border-input bg-background px-2.5 font-mono text-[10px] text-muted-foreground shadow-xs">
                     https://{(cfg.brandName || "acme").toLowerCase().replace(/\s+/g, "")}.com
                   </div>
                   <div className="flex shrink-0 items-center gap-0.5">
@@ -835,7 +827,7 @@ export function LandingBuilder({
                     ))}
                   </div>
                 </div>
-                <div className="flex max-h-[60vh] flex-col items-center overflow-y-auto bg-zinc-950/5 p-4 md:max-h-[calc(100vh-15rem)] dark:bg-zinc-950/40">
+                <div className="preview-canvas scroll-panel flex max-h-[60vh] flex-col items-center p-4 md:max-h-[calc(100vh-15rem)]">
                   {previewDevice !== "desktop" && (
                     <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                       {previewDevice} · {PREVIEW_WIDTHS[previewDevice]}px wide

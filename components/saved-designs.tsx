@@ -15,6 +15,7 @@ import {
   type SavedComponent,
   type ToolId,
 } from "@/lib/supabase";
+import { ensureSaveSession, resetSaveSession } from "@/lib/save-session";
 import { timeAgo } from "@/lib/css";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -48,6 +49,14 @@ export function SavedDesigns({
         return;
       }
       setLoading(true);
+      const authed = await ensureSaveSession(supabase);
+      if (!authed) {
+        if (active) {
+          setItems([]);
+          setLoading(false);
+        }
+        return;
+      }
       const { data, error } = await supabase
         .from("saved_components")
         .select("*")
@@ -55,6 +64,10 @@ export function SavedDesigns({
         .order("created_at", { ascending: false })
         .limit(6);
       if (active && !error && data) setItems(data as SavedComponent[]);
+      if (active && error) {
+        resetSaveSession();
+        setItems([]);
+      }
       if (active) setLoading(false);
     };
     run();
@@ -68,6 +81,12 @@ export function SavedDesigns({
       const supabase = getSupabase();
       if (!supabase) return;
       setDeletingId(id);
+      const authed = await ensureSaveSession(supabase);
+      if (!authed) {
+        setDeletingId(null);
+        showToast("Couldn't verify your save session", false);
+        return;
+      }
       const { error } = await supabase
         .from("saved_components")
         .delete()
@@ -106,9 +125,11 @@ export function SavedDesigns({
             Add your{" "}
             <code className="font-mono">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
             <code className="font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to{" "}
-            <code className="font-mono">.env.local</code>, run the SQL in{" "}
+            <code className="font-mono">.env.local</code>, enable{" "}
+            <span className="font-medium text-foreground">Anonymous sign-ins</span>{" "}
+            in Supabase, run the SQL in{" "}
             <code className="font-mono">supabase/saved_components.sql</code>,
-            then restart the dev server to enable saving.
+            then restart the dev server. Saves are private to each browser.
           </CardContent>
         </Card>
       ) : loading ? (

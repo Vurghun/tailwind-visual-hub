@@ -277,7 +277,7 @@ export function BoxShadowTool({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="relative flex min-h-[340px] items-center justify-center overflow-hidden rounded-none border border-border bg-[linear-gradient(135deg,#0ea5e9_0%,#8b5cf6_45%,#ec4899_100%)] p-8">
+              <div className="relative flex min-h-[340px] items-center justify-center overflow-hidden rounded-xl border border-border demo-gradient-bg p-8">
                 <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(45deg,rgba(255,255,255,0.18)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.18)_75%),linear-gradient(45deg,rgba(255,255,255,0.18)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.18)_75%)] [background-position:0_0,12px_12px] [background-size:24px_24px]" />
                 <div className="pointer-events-none absolute -left-10 top-6 size-40 rounded-full bg-yellow-300/40 blur-2xl" />
                 <div className="pointer-events-none absolute bottom-4 right-8 size-44 rounded-full bg-emerald-300/30 blur-2xl" />
@@ -340,7 +340,7 @@ export function BoxShadowTool({
         renderPreview={(config) => {
           const c = parseShadow(config);
           return (
-            <div className="relative flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,#0ea5e9_0%,#8b5cf6_45%,#ec4899_100%)]">
+            <div className="relative flex h-full w-full items-center justify-center demo-gradient-bg">
               <div
                 style={shadowToStyle(c)}
                 className="size-12 transition-transform group-hover:scale-110"

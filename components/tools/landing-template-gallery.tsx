@@ -9,6 +9,7 @@ import {
   templatesInCategory,
   type TemplateCatalogEntry,
 } from "@/lib/landing-template-catalog";
+import { uiKbd } from "@/components/controls";
 import { hexToRgb } from "@/lib/css";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -90,8 +91,8 @@ function TemplateCard({
       type="button"
       onClick={onUse}
       className={cn(
-        "group flex w-full flex-col overflow-hidden border border-border bg-card text-left transition-all hover:border-primary hover:shadow-md",
-        active && "border-primary ring-2 ring-primary/30"
+        "group flex w-full flex-col overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/50 hover:shadow-md",
+        active && "border-primary ring-2 ring-primary/20"
       )}
     >
       <TemplatePreviewThumb entry={entry} />
@@ -157,7 +158,7 @@ export function LandingTemplateGallery({
         <CardContent>
           <p className="text-[11px] text-muted-foreground">
             Loading a template replaces your current page. Press{" "}
-            <kbd className="rounded-none border border-border bg-muted px-1 font-mono text-[10px]">
+            <kbd className={uiKbd}>
               Ctrl+Z
             </kbd>{" "}
             to undo if you change your mind.

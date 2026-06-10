@@ -220,6 +220,7 @@ export type SavedComponent = {
   tool: ToolId;
   class_string: string | null;
   config: Record<string, unknown>;
+  user_id: string | null;
 };
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -240,7 +241,13 @@ let client: SupabaseClient | null = null;
 export function getSupabase(): SupabaseClient | null {
   if (!isSupabaseConfigured) return null;
   if (!client) {
-    client = createClient(supabaseUrl as string, supabaseAnonKey as string);
+    client = createClient(supabaseUrl as string, supabaseAnonKey as string, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false,
+      },
+    });
   }
   return client;
 }

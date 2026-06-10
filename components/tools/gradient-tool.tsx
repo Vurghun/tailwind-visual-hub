@@ -222,7 +222,7 @@ export function GradientTool({
             </CardHeader>
             <CardContent>
               <div
-                className="min-h-[340px] rounded-none border border-border"
+                className="min-h-[340px] rounded-xl border border-border shadow-sm"
                 style={{ backgroundImage: css }}
               />
             </CardContent>

@@ -23,7 +23,8 @@ import {
   newId,
   type AssetItem,
 } from "@/lib/landing-model";
-import { TextRow } from "@/components/controls";
+import { TextRow, uiKbd } from "@/components/controls";
+import { uiSuccess, uiWarning } from "@/lib/ui";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -147,7 +148,7 @@ export function LandingPublishPanel({
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
           {a11y.length === 0 && (
-            <p className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+            <p className={cn("flex items-center gap-1.5 text-xs", uiSuccess)}>
               <CheckCircle weight="fill" className="size-4" />
               No issues detected.
             </p>
@@ -157,7 +158,7 @@ export function LandingPublishPanel({
               key={i}
               className={cn(
                 "text-xs",
-                issue.level === "error" ? "text-destructive" : "text-amber-600 dark:text-amber-400"
+                issue.level === "error" ? "text-destructive" : uiWarning
               )}
             >
               {issue.message}
@@ -222,7 +223,7 @@ export function LandingPublishPanel({
             <Plus weight="bold" className="size-3.5" />
             Add asset
           </Button>
-          <div className="max-h-32 overflow-y-auto">
+          <div className="scroll-panel max-h-32">
             {assets.map((a) => (
               <button
                 key={a.id}
@@ -253,7 +254,7 @@ export function LandingPublishPanel({
           <Button size="sm" onClick={snapshot}>
             Save snapshot now
           </Button>
-          <div className="max-h-40 overflow-y-auto">
+          <div className="scroll-panel max-h-40">
             {versions.map((v) => (
               <button
                 key={v.id}
