@@ -155,7 +155,17 @@
   }
 
   body {
-    @apply min-h-full bg-background text-foreground antialiased;
+    @apply min-h-full text-foreground antialiased;
+    background-color: var(--background);
+    background-image:
+      radial-gradient(ellipse 90% 60% at 50% -30%, oklch(0.55 0.04 264 / 0.12), transparent 55%),
+      radial-gradient(ellipse 70% 45% at 100% 0%, oklch(0.65 0.06 180 / 0.06), transparent 50%);
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(ellipse 90% 60% at 50% -30%, oklch(0.35 0.06 264 / 0.35), transparent 55%),
+      radial-gradient(ellipse 70% 45% at 100% 0%, oklch(0.4 0.05 180 / 0.15), transparent 50%);
   }
 
   code,
@@ -197,19 +207,179 @@
 
 @layer components {
   .app-shell-header {
-    @apply sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl;
+    @apply sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur-xl backdrop-saturate-150;
+  }
+
+  .app-shell-inner {
+    @apply mx-auto flex w-full max-w-[1600px] flex-col gap-3 px-3 py-2.5 sm:px-4 lg:flex-row lg:items-center lg:justify-between lg:py-3;
+  }
+
+  .app-shell-divider {
+    @apply hidden h-6 w-px shrink-0 bg-border lg:block;
+  }
+
+  .app-shell-brand {
+    @apply flex items-center gap-3;
+  }
+
+  .app-shell-logo {
+    @apply flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm ring-1 ring-primary/15;
+  }
+
+  .app-tool-nav {
+    @apply flex items-center gap-1;
+  }
+
+  .tool-context-bar {
+    @apply mb-4 overflow-hidden rounded-xl border border-border/70 bg-card/60 px-4 py-3.5 shadow-sm ring-1 ring-foreground/[0.03] backdrop-blur-sm;
+  }
+
+  .tool-context-top {
+    @apply flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between;
+  }
+
+  .tool-context-title {
+    @apply text-[15px] font-semibold tracking-tight text-foreground;
+  }
+
+  .tool-context-desc {
+    @apply mt-1 max-w-xl text-xs leading-relaxed text-muted-foreground;
+  }
+
+  .tool-context-stepper {
+    @apply mt-4 flex flex-col gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:gap-0;
+  }
+
+  .tool-context-step {
+    @apply flex min-w-0 flex-1 items-center gap-2.5;
+  }
+
+  .tool-context-step-badge {
+    @apply flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground shadow-sm;
+  }
+
+  .tool-context-step-text {
+    @apply text-[11px] leading-snug text-muted-foreground sm:max-w-[9rem] lg:max-w-none;
+  }
+
+  .tool-context-step-connector {
+    @apply mx-2 hidden h-px min-w-4 flex-1 bg-border sm:block;
+  }
+
+  .tool-context-steps {
+    @apply hidden;
+  }
+
+  .tool-context-step-num {
+    @apply hidden;
+  }
+
+  .workspace-frame {
+    @apply grid min-h-[min(760px,calc(100vh-11rem))] grid-cols-1 overflow-hidden rounded-2xl border border-border/80 bg-card shadow-lg shadow-black/5 ring-1 ring-foreground/[0.04] lg:grid-cols-[minmax(0,288px)_minmax(0,1fr)] xl:grid-cols-[minmax(0,312px)_minmax(0,1fr)];
+  }
+
+  .workspace-sidebar {
+    @apply max-h-[min(760px,calc(100vh-11rem))] border-b border-border/80 bg-muted/20 lg:border-b-0 lg:border-r;
+  }
+
+  .workspace-canvas {
+    @apply flex min-h-0 min-w-0 flex-col bg-[radial-gradient(circle,oklch(0.55_0_0/0.055)_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(circle,oklch(1_0_0/0.04)_1px,transparent_1px)];
+  }
+
+  .workspace-toolbar {
+    @apply flex flex-wrap items-center gap-2 border-b border-border/80 bg-card/95 px-3 py-2.5 backdrop-blur-md;
+  }
+
+  .workspace-toolbar-group {
+    @apply flex items-center gap-0.5 rounded-lg border border-border/60 bg-muted/30 p-0.5;
+  }
+
+  .canvas-status-bar {
+    @apply flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/60 bg-card/80 px-3 py-2 text-[11px] text-muted-foreground backdrop-blur-sm;
+  }
+
+  .layer-row {
+    @apply flex items-center gap-1 rounded-md py-1 pr-1 text-xs transition-colors hover:bg-accent/60;
+  }
+
+  .layer-row-selected {
+    @apply bg-primary/12 text-foreground ring-1 ring-primary/25 hover:bg-primary/15;
+  }
+
+  .layer-empty {
+    @apply rounded-lg border border-dashed border-border/80 bg-muted/20 px-3 py-6 text-center text-xs leading-relaxed text-muted-foreground;
+  }
+
+  .block-tile {
+    @apply flex flex-col items-start gap-2 rounded-lg border border-border/80 bg-card p-3 text-left shadow-xs transition-all hover:-translate-y-px hover:border-primary/35 hover:bg-accent/30 hover:shadow-sm;
+  }
+
+  .block-tile-icon {
+    @apply flex size-8 items-center justify-center rounded-md bg-primary/10 text-primary transition-colors;
+  }
+
+  .group:hover .block-tile-icon {
+    @apply bg-primary/15;
+  }
+
+  .code-panel {
+    @apply relative mt-1 overflow-hidden rounded-lg border border-border/80 bg-muted/40 ring-1 ring-foreground/[0.03];
+  }
+
+  .code-panel pre {
+    @apply overflow-x-auto p-4 pr-24 font-mono text-[11px] leading-relaxed text-foreground;
+  }
+
+  .saved-tile {
+    @apply relative flex flex-col overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md;
+  }
+
+  .panel-section {
+    @apply border-b border-border/80 px-4 py-4 last:border-b-0;
+  }
+
+  .panel-section-header {
+    @apply mb-3 flex items-start justify-between gap-3;
+  }
+
+  .panel-section-title {
+    @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground;
+  }
+
+  .panel-section-desc {
+    @apply mt-1 text-xs leading-relaxed text-muted-foreground;
+  }
+
+  .panel-section-body {
+    @apply flex flex-col gap-3;
+  }
+
+  .sidebar-tabs {
+    @apply sticky top-0 z-10 border-b border-border/80 bg-muted/40 p-2 backdrop-blur-md;
+  }
+
+  .sidebar-tabs [data-slot="tabs-trigger"] {
+    @apply rounded-md text-[11px];
   }
 
   .preview-frame {
-    @apply overflow-hidden rounded-xl border border-border bg-card shadow-sm;
+    @apply overflow-hidden rounded-xl border border-border/80 bg-card shadow-lg shadow-black/5 ring-1 ring-foreground/[0.05];
   }
 
   .preview-chrome {
-    @apply flex items-center gap-2 border-b border-border bg-muted/50 px-3 py-2.5;
+    @apply flex items-center gap-2 border-b border-border/80 bg-linear-to-b from-muted/50 to-muted/30 px-3 py-2;
+  }
+
+  .preview-url-bar {
+    @apply ml-1 flex h-7 min-w-0 flex-1 items-center gap-2 rounded-md border border-border/70 bg-background/90 px-2.5 font-mono text-[10px] text-muted-foreground shadow-inner;
+  }
+
+  .preview-url-lock {
+    @apply size-2.5 shrink-0 rounded-full bg-success/80;
   }
 
   .preview-canvas {
-    @apply bg-muted/40;
+    @apply bg-muted/30;
   }
 
   .demo-gradient-bg {

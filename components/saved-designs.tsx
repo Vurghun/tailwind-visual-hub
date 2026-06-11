@@ -106,10 +106,13 @@ export function SavedDesigns({
     <section className="mt-10">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <ClockCounterClockwise weight="bold" className="size-4" />
-          <h2 className="font-heading text-lg font-semibold tracking-tight">
-            Recently Saved
-          </h2>
+          <ClockCounterClockwise weight="bold" className="size-4 text-muted-foreground" />
+          <div>
+            <h2 className="font-heading text-base font-semibold tracking-tight">
+              Your saved work
+            </h2>
+            <p className="text-xs text-muted-foreground">Click a tile to load it again.</p>
+          </div>
         </div>
         {!isSupabaseConfigured && (
           <span className="flex items-center gap-1.5 rounded-none bg-amber-500/10 px-2 py-1 text-[10px] font-medium text-amber-600 dark:text-amber-400">
@@ -137,7 +140,7 @@ export function SavedDesigns({
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="aspect-square animate-pulse rounded-none border border-border bg-muted/40"
+              className="aspect-square animate-pulse rounded-xl border border-border bg-muted/40"
             />
           ))}
         </div>
@@ -153,7 +156,7 @@ export function SavedDesigns({
           {items.map((item) => (
             <div
               key={item.id}
-              className="group relative flex flex-col overflow-hidden rounded-none border border-border bg-card transition-all hover:ring-1 hover:ring-ring"
+              className="saved-tile group"
             >
               {/* Hover actions */}
               <div className="absolute right-1.5 top-1.5 z-10 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
@@ -162,7 +165,7 @@ export function SavedDesigns({
                     type="button"
                     title="Copy classes"
                     onClick={() => onCopy(item.class_string as string)}
-                    className="flex size-6 items-center justify-center rounded-none border border-border bg-background/90 text-foreground backdrop-blur hover:bg-background"
+                    className="flex size-7 items-center justify-center rounded-md border border-border/80 bg-background/95 text-foreground shadow-sm backdrop-blur hover:bg-background"
                   >
                     <Copy weight="bold" className="size-3" />
                   </button>
@@ -172,7 +175,7 @@ export function SavedDesigns({
                   title="Delete design"
                   onClick={() => handleDelete(item.id)}
                   disabled={deletingId === item.id}
-                  className="flex size-6 items-center justify-center rounded-none border border-border bg-background/90 text-destructive backdrop-blur hover:bg-background disabled:opacity-50"
+                  className="flex size-7 items-center justify-center rounded-md border border-border/80 bg-background/95 text-destructive shadow-sm backdrop-blur hover:bg-background disabled:opacity-50"
                 >
                   {deletingId === item.id ? (
                     <CircleNotch weight="bold" className="size-3 animate-spin" />

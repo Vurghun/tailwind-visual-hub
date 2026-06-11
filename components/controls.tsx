@@ -8,7 +8,6 @@ import {
   uiInput,
   uiInputSm,
   uiKbd,
-  uiPanelMuted,
   uiSuccess,
   uiTextarea,
 } from "@/lib/ui";
@@ -109,8 +108,8 @@ export function CodeBlock({
   }, [copied]);
 
   return (
-    <div className={cn(uiPanelMuted, "relative mt-1 overflow-hidden p-0")}>
-      <pre className="overflow-x-auto p-4 pr-24 font-mono text-xs leading-relaxed text-foreground">
+    <div className="code-panel">
+      <pre>
         <code className="break-words whitespace-pre-wrap">{code}</code>
       </pre>
       <Button
@@ -233,7 +232,7 @@ export function SaveBar({
   onSave: () => void;
 }) {
   return (
-    <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+    <div className="mt-4 flex flex-col gap-2 rounded-lg border border-border/60 bg-muted/15 p-3 sm:flex-row sm:items-center">
       <input
         type="text"
         value={name}

@@ -42,8 +42,8 @@ function LayerRow({
     <div>
       <div
         className={cn(
-          "group flex items-center gap-1 rounded-none py-0.5 pr-1 text-xs transition-colors hover:bg-accent",
-          selected && "bg-primary/10 text-primary"
+          "layer-row group",
+          selected && "layer-row-selected"
         )}
         style={{ paddingLeft: depth * 12 + 4 }}
       >
@@ -128,9 +128,10 @@ export function LandingLayersPanel({
   return (
     <div className="flex flex-col gap-1 py-1">
       {tree.length === 0 && (
-        <p className="px-2 py-4 text-center text-xs text-muted-foreground">
-          No layers yet. Add blocks in Layout.
-        </p>
+        <div className="layer-empty">
+          <p className="font-medium text-foreground/80">No blocks yet</p>
+          <p className="mt-1">Use <span className="text-foreground">Insert block</span> above or pick a template.</p>
+        </div>
       )}
       {tree.map((node) => (
         <LayerRow

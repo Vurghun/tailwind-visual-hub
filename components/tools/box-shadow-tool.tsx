@@ -1,27 +1,13 @@
 "use client";
 
 import * as React from "react";
-import {
-  ArrowsOutCardinal,
-  Drop,
-  Stack,
-  ArrowCounterClockwise,
-  Palette,
-} from "@phosphor-icons/react";
+import { ArrowCounterClockwise } from "@phosphor-icons/react";
 
 import { cn } from "@/lib/utils";
 import { hexToRgb, nearestBlurToken } from "@/lib/css";
 import type { ShadowConfig } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   SliderRow,
@@ -32,6 +18,7 @@ import {
 } from "@/components/controls";
 import { SavedDesigns } from "@/components/saved-designs";
 import { useSaveDesign } from "@/components/use-save-design";
+import { PanelSection, WorkspaceLayout } from "@/components/app-workspace";
 
 /* ------------------------------ Config logic ------------------------------ */
 
@@ -148,26 +135,13 @@ export function BoxShadowTool({
 
   return (
     <>
-      <div className="mb-6">
-        <h1 className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
-          Box Shadow &amp; Glassmorphism Generator
-        </h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Tweak the controls, watch the live preview, and copy production-ready
-          Tailwind CSS classes in one click.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
-        {/* Controls */}
-        <div className="flex flex-col gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Palette weight="bold" className="size-4" />
-                Presets
-              </CardTitle>
-              <CardAction>
+      <WorkspaceLayout
+        sidebar={
+          <div className="scroll-panel flex flex-col">
+            <PanelSection
+              title="Presets"
+              description="Start from a common shadow style."
+              action={
                 <Button
                   size="sm"
                   variant="ghost"
@@ -177,9 +151,8 @@ export function BoxShadowTool({
                   <ArrowCounterClockwise weight="bold" className="size-3.5" />
                   Reset
                 </Button>
-              </CardAction>
-            </CardHeader>
-            <CardContent>
+              }
+            >
               <div className="grid grid-cols-3 gap-2">
                 {PRESETS.map((p) => (
                   <Button
@@ -192,66 +165,31 @@ export function BoxShadowTool({
                   </Button>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </PanelSection>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ArrowsOutCardinal weight="bold" className="size-4" />
-                Shadow
-              </CardTitle>
-              <CardDescription>
-                Position, blur and spread of the drop shadow.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-5">
-              <SliderRow label="X Offset" value={cfg.offsetX} min={-100} max={100} onChange={(v) => set("offsetX", v)} />
-              <SliderRow label="Y Offset" value={cfg.offsetY} min={-100} max={100} onChange={(v) => set("offsetY", v)} />
-              <SliderRow label="Blur" value={cfg.blur} min={0} max={150} onChange={(v) => set("blur", v)} />
-              <SliderRow label="Spread" value={cfg.spread} min={-50} max={50} onChange={(v) => set("spread", v)} />
-              <SliderRow label="Opacity" value={cfg.shadowOpacity} min={0} max={100} unit="%" onChange={(v) => set("shadowOpacity", v)} />
-              <SliderRow label="Border Radius" value={cfg.radius} min={0} max={100} onChange={(v) => set("radius", v)} />
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-medium text-foreground">
-                  Inset shadow
-                </label>
-                <Switch checked={cfg.inset} onCheckedChange={(v) => set("inset", v)} />
+            <PanelSection title="Shadow" description="Offset, blur, spread, and radius.">
+              <div className="flex flex-col gap-5">
+                <SliderRow label="X Offset" value={cfg.offsetX} min={-100} max={100} onChange={(v) => set("offsetX", v)} />
+                <SliderRow label="Y Offset" value={cfg.offsetY} min={-100} max={100} onChange={(v) => set("offsetY", v)} />
+                <SliderRow label="Blur" value={cfg.blur} min={0} max={150} onChange={(v) => set("blur", v)} />
+                <SliderRow label="Spread" value={cfg.spread} min={-50} max={50} onChange={(v) => set("spread", v)} />
+                <SliderRow label="Opacity" value={cfg.shadowOpacity} min={0} max={100} unit="%" onChange={(v) => set("shadowOpacity", v)} />
+                <SliderRow label="Border Radius" value={cfg.radius} min={0} max={100} onChange={(v) => set("radius", v)} />
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-foreground">Inset shadow</label>
+                  <Switch checked={cfg.inset} onCheckedChange={(v) => set("inset", v)} />
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            </PanelSection>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Drop weight="bold" className="size-4" />
-                Colors
-              </CardTitle>
-              <CardDescription>
-                Shadow tint and the element background.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
+            <PanelSection title="Colors" description="Shadow tint and element fill.">
               <ColorRow label="Shadow color" value={cfg.shadowColor} onChange={(v) => set("shadowColor", v)} />
               <ColorRow label="Element background" value={cfg.bgColor} onChange={(v) => set("bgColor", v)} />
-            </CardContent>
-          </Card>
+            </PanelSection>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Stack weight="bold" className="size-4" />
-                Glassmorphism
-              </CardTitle>
-              <CardDescription>
-                Frost the element with a backdrop blur and translucent fill.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-5">
+            <PanelSection title="Glass" description="Frosted glass with backdrop blur.">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-medium text-foreground">
-                  Enable glass mode
-                </label>
+                <label className="text-xs font-medium text-foreground">Enable glass mode</label>
                 <Switch checked={cfg.glass} onCheckedChange={(v) => set("glass", v)} />
               </div>
               <div
@@ -263,70 +201,51 @@ export function BoxShadowTool({
                 <SliderRow label="Backdrop blur" value={cfg.backdropBlur} min={0} max={64} onChange={(v) => set("backdropBlur", v)} />
                 <SliderRow label="Background opacity" value={cfg.bgOpacity} min={0} max={100} unit="%" onChange={(v) => set("bgOpacity", v)} />
               </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Canvas + code */}
-        <div className="flex flex-col gap-6">
-          <Card className="overflow-hidden">
-            <CardHeader>
-              <CardTitle>Live Preview</CardTitle>
-              <CardDescription>
-                The box reacts to every control in real time.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="relative flex min-h-[340px] items-center justify-center overflow-hidden rounded-xl border border-border demo-gradient-bg p-8">
-                <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(45deg,rgba(255,255,255,0.18)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.18)_75%),linear-gradient(45deg,rgba(255,255,255,0.18)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.18)_75%)] [background-position:0_0,12px_12px] [background-size:24px_24px]" />
-                <div className="pointer-events-none absolute -left-10 top-6 size-40 rounded-full bg-yellow-300/40 blur-2xl" />
-                <div className="pointer-events-none absolute bottom-4 right-8 size-44 rounded-full bg-emerald-300/30 blur-2xl" />
-                <div
-                  style={previewStyle}
-                  className="relative flex size-40 items-center justify-center text-center"
-                >
-                  {cfg.glass && (
-                    <span className="px-3 text-xs font-medium text-white/90 drop-shadow">
-                      Glass
-                    </span>
-                  )}
-                </div>
+            </PanelSection>
+          </div>
+        }
+      >
+        <div className="flex min-h-0 flex-1 flex-col gap-4 p-3 sm:p-4">
+          <div className="preview-frame overflow-hidden">
+            <div className="relative flex min-h-[min(360px,50vh)] items-center justify-center demo-gradient-bg p-8">
+              <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(45deg,rgba(255,255,255,0.18)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.18)_75%),linear-gradient(45deg,rgba(255,255,255,0.18)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.18)_75%)] [background-position:0_0,12px_12px] [background-size:24px_24px]" />
+              <div
+                style={previewStyle}
+                className="relative flex size-40 items-center justify-center text-center"
+              >
+                {cfg.glass ? (
+                  <span className="px-3 text-xs font-medium text-white/90 drop-shadow">Glass</span>
+                ) : null}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           <AdSlot placement="shadow" label="In-content · responsive" />
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Generated Code</CardTitle>
-              <CardDescription>
-                Copy the Tailwind classes or full JSX, name it, and save.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="classes">
-                <TabsList>
-                  <TabsTrigger value="classes">Tailwind Classes</TabsTrigger>
-                  <TabsTrigger value="jsx">JSX</TabsTrigger>
-                </TabsList>
-                <TabsContent value="classes">
-                  <CodeBlock code={classString} onCopy={onCopy} />
-                </TabsContent>
-                <TabsContent value="jsx">
-                  <CodeBlock code={jsxSnippet} onCopy={onCopy} />
-                </TabsContent>
-              </Tabs>
-              <SaveBar
-                name={name}
-                onNameChange={setName}
-                saving={saving}
-                onSave={() => save({ name, classString, config: cfg })}
-              />
-            </CardContent>
-          </Card>
+          <div className="code-panel rounded-xl border border-border/80 bg-card p-4 shadow-sm ring-1 ring-foreground/[0.04]">
+            <p className="panel-section-title mb-1">Generated code</p>
+            <p className="mb-3 text-xs text-muted-foreground">Copy Tailwind classes or JSX, then save if you want.</p>
+            <Tabs defaultValue="classes">
+              <TabsList>
+                <TabsTrigger value="classes">Tailwind</TabsTrigger>
+                <TabsTrigger value="jsx">JSX</TabsTrigger>
+              </TabsList>
+              <TabsContent value="classes">
+                <CodeBlock code={classString} onCopy={onCopy} />
+              </TabsContent>
+              <TabsContent value="jsx">
+                <CodeBlock code={jsxSnippet} onCopy={onCopy} />
+              </TabsContent>
+            </Tabs>
+            <SaveBar
+              name={name}
+              onNameChange={setName}
+              saving={saving}
+              onSave={() => save({ name, classString, config: cfg })}
+            />
+          </div>
         </div>
-      </div>
+      </WorkspaceLayout>
 
       <SavedDesigns
         tool="box-shadow"

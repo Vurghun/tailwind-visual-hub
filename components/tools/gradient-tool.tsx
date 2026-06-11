@@ -1,23 +1,11 @@
 "use client";
 
 import * as React from "react";
-import {
-  Palette,
-  ArrowCounterClockwise,
-  GradientIcon,
-} from "@phosphor-icons/react";
+import { ArrowCounterClockwise } from "@phosphor-icons/react";
 
 import { cn } from "@/lib/utils";
 import type { GradientConfig } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   SliderRow,
@@ -28,6 +16,7 @@ import {
 } from "@/components/controls";
 import { SavedDesigns } from "@/components/saved-designs";
 import { useSaveDesign } from "@/components/use-save-design";
+import { PanelSection, WorkspaceLayout } from "@/components/app-workspace";
 
 /* ------------------------------ Config logic ------------------------------ */
 
@@ -100,26 +89,13 @@ export function GradientTool({
 
   return (
     <>
-      <div className="mb-6">
-        <h1 className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
-          Gradient Generator
-        </h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Blend two colors into a linear or radial gradient and grab the
-          Tailwind background class instantly.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
-        {/* Controls */}
-        <div className="flex flex-col gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Palette weight="bold" className="size-4" />
-                Presets
-              </CardTitle>
-              <CardAction>
+      <WorkspaceLayout
+        sidebar={
+          <div className="scroll-panel flex flex-col">
+            <PanelSection
+              title="Presets"
+              description="Popular gradient combinations."
+              action={
                 <Button
                   size="sm"
                   variant="ghost"
@@ -129,9 +105,8 @@ export function GradientTool({
                   <ArrowCounterClockwise weight="bold" className="size-3.5" />
                   Reset
                 </Button>
-              </CardAction>
-            </CardHeader>
-            <CardContent>
+              }
+            >
               <div className="grid grid-cols-3 gap-2">
                 {PRESETS.map((p) => (
                   <Button
@@ -144,22 +119,11 @@ export function GradientTool({
                   </Button>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </PanelSection>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <GradientIcon weight="bold" className="size-4" />
-                Gradient
-              </CardTitle>
-              <CardDescription>Type, direction and color stops.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-5">
+            <PanelSection title="Gradient" description="Type, angle, and direction.">
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-medium text-muted-foreground">
-                  Type
-                </label>
+                <label className="text-xs font-medium text-muted-foreground">Type</label>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     size="sm"
@@ -177,7 +141,6 @@ export function GradientTool({
                   </Button>
                 </div>
               </div>
-
               <div
                 className={cn(
                   "transition-opacity",
@@ -193,73 +156,49 @@ export function GradientTool({
                   onChange={(v) => set("angle", v)}
                 />
               </div>
-            </CardContent>
-          </Card>
+            </PanelSection>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Palette weight="bold" className="size-4" />
-                Colors
-              </CardTitle>
-              <CardDescription>The two gradient stops.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
+            <PanelSection title="Colors" description="Two stops for the blend.">
               <ColorRow label="Color 1" value={cfg.color1} onChange={(v) => set("color1", v)} />
               <ColorRow label="Color 2" value={cfg.color2} onChange={(v) => set("color2", v)} />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Canvas + code */}
-        <div className="flex flex-col gap-6">
-          <Card className="overflow-hidden">
-            <CardHeader>
-              <CardTitle>Live Preview</CardTitle>
-              <CardDescription>
-                The gradient updates in real time.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div
-                className="min-h-[340px] rounded-xl border border-border shadow-sm"
-                style={{ backgroundImage: css }}
-              />
-            </CardContent>
-          </Card>
+            </PanelSection>
+          </div>
+        }
+      >
+        <div className="flex min-h-0 flex-1 flex-col gap-4 p-3 sm:p-4">
+          <div className="preview-frame overflow-hidden">
+            <div
+              className="min-h-[min(360px,50vh)]"
+              style={{ backgroundImage: css }}
+            />
+          </div>
 
           <AdSlot placement="gradient" label="In-content · responsive" />
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Generated Code</CardTitle>
-              <CardDescription>
-                Copy the Tailwind classes or full JSX, name it, and save.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="classes">
-                <TabsList>
-                  <TabsTrigger value="classes">Tailwind Classes</TabsTrigger>
-                  <TabsTrigger value="jsx">JSX</TabsTrigger>
-                </TabsList>
-                <TabsContent value="classes">
-                  <CodeBlock code={classString} onCopy={onCopy} />
-                </TabsContent>
-                <TabsContent value="jsx">
-                  <CodeBlock code={jsxSnippet} onCopy={onCopy} />
-                </TabsContent>
-              </Tabs>
-              <SaveBar
-                name={name}
-                onNameChange={setName}
-                saving={saving}
-                onSave={() => save({ name, classString, config: cfg })}
-              />
-            </CardContent>
-          </Card>
+          <div className="code-panel rounded-xl border border-border/80 bg-card p-4 shadow-sm ring-1 ring-foreground/[0.04]">
+            <p className="panel-section-title mb-1">Generated code</p>
+            <p className="mb-3 text-xs text-muted-foreground">Copy the Tailwind background class or JSX.</p>
+            <Tabs defaultValue="classes">
+              <TabsList>
+                <TabsTrigger value="classes">Tailwind</TabsTrigger>
+                <TabsTrigger value="jsx">JSX</TabsTrigger>
+              </TabsList>
+              <TabsContent value="classes">
+                <CodeBlock code={classString} onCopy={onCopy} />
+              </TabsContent>
+              <TabsContent value="jsx">
+                <CodeBlock code={jsxSnippet} onCopy={onCopy} />
+              </TabsContent>
+            </Tabs>
+            <SaveBar
+              name={name}
+              onNameChange={setName}
+              saving={saving}
+              onSave={() => save({ name, classString, config: cfg })}
+            />
+          </div>
         </div>
-      </div>
+      </WorkspaceLayout>
 
       <SavedDesigns
         tool="gradient"

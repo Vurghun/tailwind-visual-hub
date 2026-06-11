@@ -22,6 +22,7 @@ import {
   newId,
   defaultBlockData,
 } from "@/lib/landing-model";
+import { PanelSection } from "@/components/app-workspace";
 import { LandingBlockPalette } from "@/components/tools/landing-block-palette";
 import {
   SliderRow,
@@ -30,13 +31,22 @@ import {
   ToggleRow,
 } from "@/components/controls";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
+function InspectorShell({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <PanelSection title={title} description={description}>
+      {children}
+    </PanelSection>
+  );
+}
 
 export function LandingInspectorPanel({
   cfg,
@@ -68,46 +78,37 @@ export function LandingInspectorPanel({
 
   if (selection.kind === "none") {
     return (
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Nothing selected</CardTitle>
-          <CardDescription>
-            Click any block on the page, or add one above. You can also type directly on the
-            canvas — no sidebar required.
-          </CardDescription>
-        </CardHeader>
-        {onAddBlock && (
-          <CardContent>
-            <p className="mb-2 text-[11px] font-medium text-muted-foreground">Quick add</p>
+      <InspectorShell
+        title="Properties"
+        description="Select a block on the canvas to edit it here."
+      >
+        {onAddBlock ? (
+          <>
+            <p className="text-[11px] font-medium text-muted-foreground">Quick insert</p>
             <LandingBlockPalette onAdd={onAddBlock} compact />
-          </CardContent>
-        )}
-      </Card>
+          </>
+        ) : null}
+      </InspectorShell>
     );
   }
 
   if (selection.kind === "frame" && onPatch) {
     if (selection.frame === "nav") {
       return (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Navigation</CardTitle>
-            <CardDescription>Click text on the page to edit links, or use these fields.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3">
+        <InspectorShell
+          title="Navigation"
+          description="Edit the top bar labels."
+        >
+          <div className="flex flex-col gap-3">
             <TextRow label="Site name" value={cfg.brandName} onChange={(v) => onPatch({ brandName: v })} />
             <TextRow label="Button label" value={cfg.ctaPrimary} onChange={(v) => onPatch({ ctaPrimary: v })} />
-          </CardContent>
-        </Card>
+          </div>
+        </InspectorShell>
       );
     }
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Hero banner</CardTitle>
-          <CardDescription>Big intro at the top of the page — optional.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-3">
+      <InspectorShell title="Hero banner" description="Main intro at the top of the page.">
+        <div className="flex flex-col gap-3">
           <TextRow label="Badge (optional)" value={cfg.heroBadge} onChange={(v) => onPatch({ heroBadge: v })} />
           <TextRow label="Headline" value={cfg.heroHeadline} multiline onChange={(v) => onPatch({ heroHeadline: v })} />
           <TextRow label="Subtitle" value={cfg.heroSubtitle} multiline onChange={(v) => onPatch({ heroSubtitle: v })} />
@@ -119,21 +120,18 @@ export function LandingInspectorPanel({
           />
           <TextRow label="Primary button" value={cfg.ctaPrimary} onChange={(v) => onPatch({ ctaPrimary: v })} />
           <TextRow label="Secondary button" value={cfg.ctaSecondary} onChange={(v) => onPatch({ ctaSecondary: v })} />
-        </CardContent>
-      </Card>
+        </div>
+      </InspectorShell>
     );
   }
 
   if (selection.kind === "element" && section) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">
-            {ELEMENT_LABELS[selection.elementId]} · {sectionLabel(section)}
-          </CardTitle>
-          <CardDescription>Or click the text on the page to edit inline.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
+      <InspectorShell
+        title={`${ELEMENT_LABELS[selection.elementId]} · ${sectionLabel(section)}`}
+        description="Or click the text on the canvas to edit inline."
+      >
+        <div className="flex flex-col gap-4">
           {selection.elementId === "heading" && (
             <TextRow
               label="Heading"
@@ -184,8 +182,8 @@ export function LandingInspectorPanel({
               onChange={(v) => onPatchSection(section.uid, { buttonSecondary: v })}
             />
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </InspectorShell>
     );
   }
 
@@ -194,16 +192,15 @@ export function LandingInspectorPanel({
   const isFreeform = isFreeformBlock(section.id);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-sm">{sectionLabel(section)}</CardTitle>
-        <CardDescription>
-          {isFreeform
-            ? "This block is yours alone — duplicates won’t share text."
-            : SECTION_LABELS[section.id]}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
+    <InspectorShell
+      title={sectionLabel(section)}
+      description={
+        isFreeform
+          ? "This block is independent — duplicates won't share text."
+          : SECTION_LABELS[section.id]
+      }
+    >
+      <div className="flex flex-col gap-4">
         {isFreeform && section.id === "content" && (
           <>
             <TextRow
@@ -356,7 +353,7 @@ export function LandingInspectorPanel({
             Save this block for reuse
           </Button>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </InspectorShell>
   );
 }

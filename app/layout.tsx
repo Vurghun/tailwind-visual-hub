@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { AdSenseHeadScript } from "@/components/adsense-script";
+import { getAdSenseClient, isAdSenseConfigured } from "@/lib/ads-config";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -32,17 +33,32 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const adsenseClient = isAdSenseConfigured() ? getAdSenseClient() : null;
+
   return (
     <html
       lang="en"
       className={cn("dark h-full", geistSans.variable, geistMono.variable, jetbrainsMono.variable)}
       suppressHydrationWarning
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <AdSenseHeadScript />
-      </head>
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        {/* beforeInteractive → injected into <head> in raw HTML, not React-hydrated */}
+        <Script
+          id="tvh-theme"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: themeScript }}
+        />
+        {adsenseClient ? (
+          <Script
+            id="adsense-client"
+            strategy="beforeInteractive"
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
+            crossOrigin="anonymous"
+          />
+        ) : null}
+        {children}
+      </body>
     </html>
   );
 }

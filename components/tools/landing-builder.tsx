@@ -4,23 +4,18 @@ import * as React from "react";
 import {
   Palette,
   ArrowCounterClockwise,
-  Browser,
-  X,
-  Lightning,
   Plus,
-  Cursor,
   FloppyDisk,
   CircleNotch,
   ArrowUUpLeft,
   ArrowUUpRight,
-  CopySimple,
+  Code,
+  DownloadSimple,
+  SquaresFour,
   DeviceMobile,
   DeviceTablet,
   Desktop,
   RocketLaunch,
-  Code,
-  DownloadSimple,
-  SquaresFour,
 } from "@phosphor-icons/react";
 
 import type {
@@ -47,14 +42,6 @@ import {
 import { hexToRgb } from "@/lib/css";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   SliderRow,
@@ -71,7 +58,8 @@ import { LandingSidebarLook } from "@/components/tools/landing-sidebar-look";
 import { LandingTemplateGallery } from "@/components/tools/landing-template-gallery";
 import { LandingPublishPanel } from "@/components/tools/landing-publish-panel";
 import { TEMPLATE_CATALOG } from "@/lib/landing-template-catalog";
-import { uiInputSm, uiToolbar } from "@/lib/ui";
+import { WorkspaceLayout, WorkspaceToolbar, WorkspaceToolbarGroup } from "@/components/app-workspace";
+import { uiInputSm } from "@/lib/ui";
 import {
   DEFAULT_FAQ,
   DEFAULT_LOGOS,
@@ -287,64 +275,6 @@ function buildHtmlDocument(cfg: LandingConfig, pageHtml: string): string {
 ${pageHtml}
 </body>
 </html>`;
-}
-
-/* --------------------------------- Intro ---------------------------------- */
-
-const INTRO_KEY = "tvh-builder-intro-dismissed";
-
-function IntroBanner() {
-  const [mounted, setMounted] = React.useState(false);
-  const [show, setShow] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-    setShow(localStorage.getItem(INTRO_KEY) !== "1");
-  }, []);
-
-  if (!mounted || !show) return null;
-
-  const dismiss = () => {
-    localStorage.setItem(INTRO_KEY, "1");
-    setShow(false);
-  };
-
-  const steps = [
-    "Templates tab: pick from 17 layouts or start blank.",
-    "Build tab: add blocks or edit what the template gave you.",
-    "Share tab: save, export HTML, or copy a preview link.",
-  ];
-
-  return (
-    <Card className="mb-6 border-primary/25 bg-primary/[0.03] shadow-sm">
-      <CardContent className="flex items-start gap-4 py-4">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
-          <Lightning weight="fill" className="size-4" />
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-semibold">Build a website in 3 steps — no code</p>
-          <ol className="mt-2 flex flex-col gap-1 text-xs text-muted-foreground sm:flex-row sm:gap-5">
-            {steps.map((s, i) => (
-              <li key={i} className="flex items-center gap-1.5">
-                <span className="flex size-4 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-foreground">
-                  {i + 1}
-                </span>
-                {s}
-              </li>
-            ))}
-          </ol>
-        </div>
-        <button
-          type="button"
-          onClick={dismiss}
-          aria-label="Dismiss"
-          className="flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        >
-          <X weight="bold" className="size-4" />
-        </button>
-      </CardContent>
-    </Card>
-  );
 }
 
 /* --------------------------------- Tool ----------------------------------- */
@@ -653,115 +583,112 @@ export function LandingBuilder({
 
   return (
     <>
-      <IntroBanner />
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,300px)_minmax(0,1fr)] md:items-start lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
-        {/* Controls — grouped into tabs + independently scrollable */}
-        <div className="scroll-panel md:sticky md:top-20 md:max-h-[calc(100vh-6rem)] md:pr-1.5">
-          <Tabs defaultValue="build" className="gap-4">
-            <TabsList className="grid h-auto w-full grid-cols-2 gap-1 sm:grid-cols-4">
-              <TabsTrigger value="build" className="gap-1.5">
-                <Plus weight="bold" className="size-4" />
+      <WorkspaceLayout
+        sidebar={
+          <Tabs defaultValue="build" className="flex h-full min-h-0 flex-col gap-0">
+            <TabsList className="sidebar-tabs grid h-auto w-full grid-cols-2 gap-1 sm:grid-cols-4">
+              <TabsTrigger value="build" className="gap-1.5 text-[11px]">
+                <Plus weight="bold" className="size-3.5" />
                 Build
               </TabsTrigger>
-              <TabsTrigger value="templates" className="gap-1.5">
-                <SquaresFour weight="bold" className="size-4" />
+              <TabsTrigger value="templates" className="gap-1.5 text-[11px]">
+                <SquaresFour weight="bold" className="size-3.5" />
                 Templates
               </TabsTrigger>
-              <TabsTrigger value="look" className="gap-1.5">
-                <Palette weight="bold" className="size-4" />
+              <TabsTrigger value="look" className="gap-1.5 text-[11px]">
+                <Palette weight="bold" className="size-3.5" />
                 Look
               </TabsTrigger>
-              <TabsTrigger value="share" className="gap-1.5">
-                <RocketLaunch weight="bold" className="size-4" />
+              <TabsTrigger value="share" className="gap-1.5 text-[11px]">
+                <RocketLaunch weight="bold" className="size-3.5" />
                 Share
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="build">
-              <LandingSidebarBuild
-                cfg={cfg}
-                selection={selection}
-                onAddBlock={addSection}
-                onSelect={setSelection}
-                onToggleSection={toggleSection}
-                onPatch={patchCfg}
-                onPatchSection={patchSectionData}
-                onSetSectionBg={setSectionBg}
-                onSet={set}
-                onSaveComponent={() => setComponentsRev((n) => n + 1)}
-                showToast={showToast}
-              />
-            </TabsContent>
+            <div className="scroll-panel min-h-0 flex-1">
+              <TabsContent value="build" className="mt-0 outline-none">
+                <LandingSidebarBuild
+                  cfg={cfg}
+                  selection={selection}
+                  onAddBlock={addSection}
+                  onSelect={setSelection}
+                  onToggleSection={toggleSection}
+                  onPatch={patchCfg}
+                  onPatchSection={patchSectionData}
+                  onSetSectionBg={setSectionBg}
+                  onSet={set}
+                  onSaveComponent={() => setComponentsRev((n) => n + 1)}
+                  showToast={showToast}
+                />
+              </TabsContent>
 
-            <TabsContent value="templates">
-              <LandingTemplateGallery
-                activeTemplate={cfg.template}
-                onUseTemplate={applyTemplate}
-                onReloadTemplate={() => applyTemplate(cfg.template, { reload: true })}
-              />
-            </TabsContent>
+              <TabsContent value="templates" className="mt-0 p-4 outline-none">
+                <LandingTemplateGallery
+                  activeTemplate={cfg.template}
+                  onUseTemplate={applyTemplate}
+                  onReloadTemplate={() => applyTemplate(cfg.template, { reload: true })}
+                />
+              </TabsContent>
 
-            <TabsContent value="look">
-              <LandingSidebarLook
-                cfg={cfg}
-                onResetTemplate={() => applyTemplate(cfg.template, { reload: true })}
-                onSet={set}
-              />
-            </TabsContent>
+              <TabsContent value="look" className="mt-0 p-4 outline-none">
+                <LandingSidebarLook
+                  cfg={cfg}
+                  onResetTemplate={() => applyTemplate(cfg.template, { reload: true })}
+                  onSet={set}
+                />
+              </TabsContent>
 
-            <TabsContent value="share">
-              <LandingPublishPanel
-                cfg={cfg}
-                designKey={designKey}
-                onPatchSeo={patchSeo}
-                onApplyConfig={(c) => {
-                  setCfg(parseLanding(c as unknown as Record<string, unknown>));
-                  setSelection({ kind: "none" });
-                }}
-                onCopy={onCopy}
-                showToast={showToast}
-              />
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* Preview — pinned so the work area is always on screen */}
-        <div className="flex flex-col gap-4 md:sticky md:top-20">
-          {/* Always-visible action toolbar */}
-          <div className={uiToolbar}>
-            <div className="flex items-center gap-0.5">
-              <Button
-                size="icon-sm"
-                variant="ghost"
-                onClick={undo}
-                disabled={past.current.length === 0}
-                aria-label="Undo (Ctrl+Z)"
-                title="Undo (Ctrl+Z)"
-              >
-                <ArrowUUpLeft weight="bold" />
-              </Button>
-              <Button
-                size="icon-sm"
-                variant="ghost"
-                onClick={redo}
-                disabled={future.current.length === 0}
-                aria-label="Redo (Ctrl+Y)"
-                title="Redo (Ctrl+Y)"
-              >
-                <ArrowUUpRight weight="bold" />
-              </Button>
+              <TabsContent value="share" className="mt-0 p-4 outline-none">
+                <LandingPublishPanel
+                  cfg={cfg}
+                  designKey={designKey}
+                  onPatchSeo={patchSeo}
+                  onApplyConfig={(c) => {
+                    setCfg(parseLanding(c as unknown as Record<string, unknown>));
+                    setSelection({ kind: "none" });
+                  }}
+                  onCopy={onCopy}
+                  showToast={showToast}
+                />
+              </TabsContent>
             </div>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Name this page (optional)"
-              spellCheck={false}
-              className={uiInputSm + " min-w-0 flex-1"}
-            />
+          </Tabs>
+        }
+      >
+        <WorkspaceToolbar>
+          <WorkspaceToolbarGroup label="History">
             <Button
-              size="lg"
+              size="icon-sm"
+              variant="ghost"
+              onClick={undo}
+              disabled={past.current.length === 0}
+              aria-label="Undo (Ctrl+Z)"
+              title="Undo (Ctrl+Z)"
+            >
+              <ArrowUUpLeft weight="bold" />
+            </Button>
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              onClick={redo}
+              disabled={future.current.length === 0}
+              aria-label="Redo (Ctrl+Y)"
+              title="Redo (Ctrl+Y)"
+            >
+              <ArrowUUpRight weight="bold" />
+            </Button>
+          </WorkspaceToolbarGroup>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Page name (optional)"
+            spellCheck={false}
+            className={uiInputSm + " min-w-0 flex-1"}
+          />
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            <Button
+              size="sm"
               variant="default"
               onClick={() => save({ name, classString: "", config: cfg })}
               disabled={saving}
@@ -772,93 +699,89 @@ export function LandingBuilder({
               ) : (
                 <FloppyDisk weight="bold" className="size-3.5" />
               )}
-              {saving ? "Saving…" : "Save"}
+              Save
             </Button>
-            <Button size="lg" variant="outline" className="gap-1.5" onClick={() => exportHtml("copy")}>
+            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => exportHtml("copy")}>
               <Code weight="bold" className="size-3.5" />
               Copy HTML
             </Button>
-            <Button size="lg" variant="outline" className="gap-1.5" onClick={() => exportHtml("download")}>
+            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => exportHtml("download")}>
               <DownloadSimple weight="bold" className="size-3.5" />
               <span className="hidden sm:inline">Download</span>
             </Button>
           </div>
+        </WorkspaceToolbar>
 
-          <Card className="overflow-hidden">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Browser weight="bold" className="size-4" />
-                Live Website Preview
-              </CardTitle>
-              <CardDescription className="flex items-center gap-1.5">
-                <Cursor weight="bold" className="size-3.5" />
-                Click text to edit. Click a block to select it. Add more blocks at the bottom of the page.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="preview-frame">
-                <div className="preview-chrome">
-                  <div className="flex gap-1.5">
-                    <span className="size-3 rounded-full bg-destructive/80" />
-                    <span className="size-3 rounded-full bg-warning/80" />
-                    <span className="size-3 rounded-full bg-success/80" />
-                  </div>
-                  <div className="ml-1 flex h-7 min-w-0 flex-1 items-center rounded-md border border-input bg-background px-2.5 font-mono text-[10px] text-muted-foreground shadow-xs">
-                    https://{(cfg.brandName || "acme").toLowerCase().replace(/\s+/g, "")}.com
-                  </div>
-                  <div className="flex shrink-0 items-center gap-0.5">
-                    {(
-                      [
-                        { id: "desktop" as const, icon: Desktop, label: "Desktop preview" },
-                        { id: "tablet" as const, icon: DeviceTablet, label: "Tablet preview" },
-                        { id: "mobile" as const, icon: DeviceMobile, label: "Mobile preview" },
-                      ] as const
-                    ).map(({ id, icon: Icon, label }) => (
-                      <Button
-                        key={id}
-                        size="icon-xs"
-                        variant={previewDevice === id ? "default" : "ghost"}
-                        aria-label={label}
-                        title={label}
-                        onClick={() => setPreviewDevice(id)}
-                      >
-                        <Icon weight="bold" />
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-                <div className="preview-canvas scroll-panel flex max-h-[60vh] flex-col items-center p-4 md:max-h-[calc(100vh-15rem)]">
-                  {previewDevice !== "desktop" && (
-                    <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                      {previewDevice} · {PREVIEW_WIDTHS[previewDevice]}px wide
-                    </p>
-                  )}
-                  <div
-                    className="@container w-full transition-[width] duration-200"
-                    style={{
-                      width: PREVIEW_WIDTHS[previewDevice],
-                      maxWidth: "100%",
-                    }}
-                  >
-                    <LandingPreview
-                      ref={previewRef}
-                      cfg={cfg}
-                      editable
-                      selection={selection}
-                      onPatch={patchCfg}
-                      onSectionPatch={patchSectionData}
-                      onSelect={setSelection}
-                      onReorderSection={reorderSection}
-                      onAddBlock={addSection}
-                      onSectionAction={handleSectionAction}
-                    />
-                  </div>
-                </div>
+        <div className="flex min-h-0 flex-1 flex-col gap-3 p-3 sm:p-4">
+          <div className="preview-frame flex min-h-[min(520px,60vh)] flex-1 flex-col">
+            <div className="preview-chrome">
+              <div className="flex gap-1.5">
+                <span className="size-2.5 rounded-full bg-destructive/80" />
+                <span className="size-2.5 rounded-full bg-warning/80" />
+                <span className="size-2.5 rounded-full bg-success/80" />
               </div>
-            </CardContent>
-          </Card>
+              <div className="preview-url-bar">
+                <span className="preview-url-lock" title="Secure preview" />
+                https://{(cfg.brandName || "yourbrand").toLowerCase().replace(/\s+/g, "")}.com
+              </div>
+              <div className="workspace-toolbar-group flex shrink-0 items-center gap-0.5">
+                {(
+                  [
+                    { id: "desktop" as const, icon: Desktop, label: "Desktop preview" },
+                    { id: "tablet" as const, icon: DeviceTablet, label: "Tablet preview" },
+                    { id: "mobile" as const, icon: DeviceMobile, label: "Mobile preview" },
+                  ] as const
+                ).map(({ id, icon: Icon, label }) => (
+                  <Button
+                    key={id}
+                    size="icon-xs"
+                    variant={previewDevice === id ? "default" : "ghost"}
+                    aria-label={label}
+                    title={label}
+                    onClick={() => setPreviewDevice(id)}
+                  >
+                    <Icon weight="bold" />
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <div className="preview-canvas scroll-panel flex min-h-0 flex-1 flex-col items-center p-4">
+              {previewDevice !== "desktop" ? (
+                <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                  {previewDevice} · {PREVIEW_WIDTHS[previewDevice]}px
+                </p>
+              ) : null}
+              <div
+                className="@container w-full transition-[width] duration-200"
+                style={{
+                  width: PREVIEW_WIDTHS[previewDevice],
+                  maxWidth: "100%",
+                }}
+              >
+                <LandingPreview
+                  ref={previewRef}
+                  cfg={cfg}
+                  editable
+                  selection={selection}
+                  onPatch={patchCfg}
+                  onSectionPatch={patchSectionData}
+                  onSelect={setSelection}
+                  onReorderSection={reorderSection}
+                  onAddBlock={addSection}
+                  onSectionAction={handleSectionAction}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="canvas-status-bar">
+            <span>Click text to edit · Select a block to change properties in the left panel</span>
+            <span className="hidden font-mono text-[10px] sm:inline">
+              {previewDevice}
+              {previewDevice !== "desktop" ? ` · ${PREVIEW_WIDTHS[previewDevice]}px` : " · full width"}
+            </span>
+          </div>
         </div>
-      </div>
+      </WorkspaceLayout>
 
       <SavedDesigns
         tool="landing"

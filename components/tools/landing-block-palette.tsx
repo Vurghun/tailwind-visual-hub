@@ -52,26 +52,21 @@ export function LandingBlockPalette({
             type="button"
             onClick={() => onAdd(id)}
             className={cn(
-              "group flex flex-col items-start gap-1 border text-left transition-colors",
               embedded
-                ? "rounded-lg border-dashed border-border/80 bg-background text-foreground shadow-sm hover:border-primary hover:bg-accent/50"
-                : "border-border bg-card text-card-foreground hover:border-primary hover:bg-primary/5",
-              compact ? "px-2.5 py-2" : "px-3 py-3"
+                ? "group flex flex-col items-start gap-1 rounded-lg border border-dashed border-border/80 bg-background px-3 py-3 text-left text-foreground shadow-sm transition-colors hover:border-primary hover:bg-accent/50"
+                : cn("block-tile group", compact && "p-2.5")
             )}
           >
             <span className="flex w-full items-center justify-between gap-1">
-              <Icon weight="bold" className="size-4 text-primary" />
+              <span className={cn(embedded ? "" : "block-tile-icon", compact && !embedded && "size-7")}>
+                <Icon weight="bold" className={cn("size-4", !embedded && "text-primary")} />
+              </span>
               <Plus
                 weight="bold"
                 className="size-3.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
               />
             </span>
-            <span
-              className={cn(
-                "text-xs font-semibold",
-                embedded ? "text-foreground" : "text-card-foreground"
-              )}
-            >
+            <span className={cn("text-xs font-semibold", embedded ? "text-foreground" : "text-foreground")}>
               {SECTION_LABELS[id]}
             </span>
             {!compact && (

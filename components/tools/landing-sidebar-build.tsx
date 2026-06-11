@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { CaretDown, TreeStructure } from "@phosphor-icons/react";
+import { CaretDown } from "@phosphor-icons/react";
 
+import { PanelSection } from "@/components/app-workspace";
 import type {
   LandingConfig,
   LandingSectionId,
@@ -15,16 +16,9 @@ import { LandingBlockPalette } from "@/components/tools/landing-block-palette";
 import { LandingLayersPanel } from "@/components/tools/landing-layers-panel";
 import { LandingInspectorPanel } from "@/components/tools/landing-inspector-panel";
 import { ToggleRow } from "@/components/controls";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-function Collapsible({
+function CollapsiblePanel({
   title,
   description,
   defaultOpen = false,
@@ -37,25 +31,25 @@ function Collapsible({
 }) {
   const [open, setOpen] = React.useState(defaultOpen);
   return (
-    <Card>
+    <section className="panel-section">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-start justify-between gap-2 px-4 py-3 text-left"
+        className="panel-section-header w-full text-left"
       >
-        <span>
-          <span className="block text-sm font-semibold">{title}</span>
-          {description && (
-            <span className="mt-0.5 block text-[11px] text-muted-foreground">{description}</span>
-          )}
-        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className="panel-section-title normal-case tracking-normal text-foreground">
+            {title}
+          </h3>
+          {description ? <p className="panel-section-desc">{description}</p> : null}
+        </div>
         <CaretDown
           weight="bold"
-          className={cn("mt-0.5 size-4 shrink-0 transition-transform", open && "rotate-180")}
+          className={cn("size-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180")}
         />
       </button>
-      {open && <CardContent className="border-t border-border pt-4">{children}</CardContent>}
-    </Card>
+      {open ? <div className="panel-section-body">{children}</div> : null}
+    </section>
   );
 }
 
@@ -85,44 +79,22 @@ export function LandingSidebarBuild({
   showToast: (msg: string, ok?: boolean) => void;
 }) {
   return (
-    <div className="flex flex-col gap-4">
-      <Card className="border-dashed border-primary/30 bg-primary/[0.02]">
-        <CardContent className="py-3 text-[11px] text-muted-foreground">
-          Want a full landing page to start from? Open the{" "}
-          <span className="font-semibold text-foreground">Templates</span> tab for SaaS,
-          Startup, Agency, and more.
-        </CardContent>
-      </Card>
+    <div className="flex flex-col">
+      <PanelSection
+        title="Insert block"
+        description="Choose a type, then click it on the canvas to edit."
+      >
+        <LandingBlockPalette onAdd={onAddBlock} />
+      </PanelSection>
 
-      <Card className="border-primary/25 bg-primary/[0.03]">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Add a block</CardTitle>
-          <CardDescription>
-            Click a block type — then edit it on the page. Each one is independent.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <LandingBlockPalette onAdd={onAddBlock} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-sm">
-            <TreeStructure weight="bold" className="size-4" />
-            What&apos;s on the page
-          </CardTitle>
-          <CardDescription>Click a row to select it on the canvas.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <LandingLayersPanel
-            cfg={cfg}
-            selection={selection}
-            onSelect={onSelect}
-            onToggleSection={onToggleSection}
-          />
-        </CardContent>
-      </Card>
+      <PanelSection title="Layers" description="Everything on your page, top to bottom.">
+        <LandingLayersPanel
+          cfg={cfg}
+          selection={selection}
+          onSelect={onSelect}
+          onToggleSection={onToggleSection}
+        />
+      </PanelSection>
 
       <LandingInspectorPanel
         cfg={cfg}
@@ -135,31 +107,31 @@ export function LandingSidebarBuild({
         showToast={showToast}
       />
 
-      <Collapsible title="Page header & hero" description="Optional — turn off for a blank canvas">
+      <CollapsiblePanel title="Page header & hero" description="Optional chrome at the top">
         <div className="flex flex-col gap-3">
-          <ToggleRow label="Show top navigation" checked={cfg.showNav} onChange={(v) => onSet("showNav", v)} />
-          <ToggleRow label="Show hero banner" checked={cfg.showHero} onChange={(v) => onSet("showHero", v)} />
-          {cfg.showHero && (
+          <ToggleRow label="Top navigation" checked={cfg.showNav} onChange={(v) => onSet("showNav", v)} />
+          <ToggleRow label="Hero banner" checked={cfg.showHero} onChange={(v) => onSet("showHero", v)} />
+          {cfg.showHero ? (
             <ToggleRow
-              label="Show hero image area"
+              label="Hero image area"
               checked={cfg.showHeroVisual}
               onChange={(v) => onSet("showHeroVisual", v)}
             />
-          )}
+          ) : null}
         </div>
-      </Collapsible>
+      </CollapsiblePanel>
 
-      <Collapsible title="Pre-built sections" description="Pricing, FAQ, features — optional shortcuts">
+      <CollapsiblePanel title="Section shortcuts" description="Pricing, FAQ, features, and more">
         <div className="flex flex-col gap-1.5">
           {TEMPLATE_SECTIONS.map((id) => (
             <button
               key={id}
               type="button"
               onClick={() => onAddBlock(id)}
-              className="flex items-center justify-between border border-border px-2.5 py-2 text-left text-xs hover:bg-accent"
+              className="flex items-center justify-between rounded-md border border-border bg-background px-2.5 py-2 text-left text-xs transition-colors hover:border-primary/40 hover:bg-accent/40"
             >
               <span>
-                <span className="font-semibold">{SECTION_LABELS[id]}</span>
+                <span className="font-medium text-foreground">{SECTION_LABELS[id]}</span>
                 <span className="mt-0.5 block text-[10px] text-muted-foreground">
                   {SECTION_BLURBS[id]}
                 </span>
@@ -167,7 +139,7 @@ export function LandingSidebarBuild({
             </button>
           ))}
         </div>
-      </Collapsible>
+      </CollapsiblePanel>
     </div>
   );
 }
