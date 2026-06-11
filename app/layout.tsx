@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { AdSenseHeadScript } from "@/components/adsense-script";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -39,6 +40,7 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <AdSenseHeadScript />
       </head>
       <body className="flex min-h-full flex-col">{children}</body>
     </html>

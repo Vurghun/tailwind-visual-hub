@@ -295,7 +295,7 @@ export function BoxShadowTool({
             </CardContent>
           </Card>
 
-          <AdSlot label="AdSense Ad Slot — In-content (728x90 / responsive)" />
+          <AdSlot placement="shadow" label="In-content · responsive" />
 
           <Card>
             <CardHeader>

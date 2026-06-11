@@ -12,6 +12,12 @@ import {
   uiSuccess,
   uiTextarea,
 } from "@/lib/ui";
+import {
+  getAdSenseClient,
+  getAdSenseSlot,
+  isAdSenseConfigured,
+  type AdPlacement,
+} from "@/lib/ads-config";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -254,12 +260,56 @@ export function SaveBar({
   );
 }
 
-export function AdSlot({ label }: { label: string }) {
+export function AdSlot({
+  placement,
+  label,
+}: {
+  /** Maps to NEXT_PUBLIC_ADSENSE_SLOT_* env vars when you create ad units. */
+  placement?: AdPlacement;
+  label: string;
+}) {
+  const client = getAdSenseClient();
+  const slot = placement ? getAdSenseSlot(placement) : "";
+  const showAd = isAdSenseConfigured() && Boolean(slot);
+  const insRef = React.useRef<HTMLModElement>(null);
+
+  React.useEffect(() => {
+    if (!showAd || !insRef.current) return;
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch {
+      /* ad blocker or script still loading */
+    }
+  }, [showAd, client, slot]);
+
+  if (showAd) {
+    return (
+      <div className="flex min-h-[220px] w-full items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/20 p-2 ring-1 ring-foreground/5">
+        <ins
+          ref={insRef}
+          className="adsbygoogle block w-full"
+          style={{ display: "block", minHeight: 200 }}
+          data-ad-client={client}
+          data-ad-slot={slot}
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-[220px] w-full items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 p-6 ring-1 ring-foreground/5">
       <div className="flex flex-col items-center gap-2 text-center">
         <span className={uiBadge}>Advertisement</span>
         <span className="max-w-sm text-xs text-muted-foreground">{label}</span>
+        {isAdSenseConfigured() && !slot && placement && (
+          <span className="text-[10px] text-muted-foreground">
+            AdSense connected — add a slot ID for{" "}
+            <code className="font-mono">NEXT_PUBLIC_ADSENSE_SLOT_{placement.toUpperCase()}</code>{" "}
+            after creating the unit in AdSense.
+          </span>
+        )}
       </div>
     </div>
   );

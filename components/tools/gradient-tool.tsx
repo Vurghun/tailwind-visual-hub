@@ -228,7 +228,7 @@ export function GradientTool({
             </CardContent>
           </Card>
 
-          <AdSlot label="AdSense Ad Slot — In-content (728x90 / responsive)" />
+          <AdSlot placement="gradient" label="In-content · responsive" />
 
           <Card>
             <CardHeader>

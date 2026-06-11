@@ -131,7 +131,7 @@ export default function Home() {
         </Tabs>
 
         <div className="mt-10">
-          <AdSlot label="Footer leaderboard · responsive" />
+          <AdSlot placement="footer" label="Footer leaderboard · responsive" />
         </div>
       </main>
 
