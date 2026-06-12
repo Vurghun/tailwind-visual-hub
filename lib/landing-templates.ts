@@ -8,6 +8,7 @@ import type {
   SectionBlockData,
 } from "@/lib/supabase";
 import { defaultBlockData, normalizeSeo } from "@/lib/landing-model";
+import { EXTRA_LANDING_TEMPLATES } from "@/lib/landing-templates-extra";
 
 export const DEFAULT_PRICING: LandingTier[] = [
   {
@@ -1246,6 +1247,7 @@ export const LANDING_TEMPLATES: Record<LandingTemplate, TemplateBase> = {
       sec("footer", "nonprofit-footer"),
     ],
   },
+  ...EXTRA_LANDING_TEMPLATES,
   scratch: {
     template: "scratch",
     brandName: "Your Brand",

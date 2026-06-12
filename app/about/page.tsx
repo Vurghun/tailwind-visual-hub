@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Browser,
@@ -10,13 +9,14 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 
 import { MarketingLayout } from "@/components/site-shell";
+import { pageMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: `About — ${SITE.name}`,
-  description:
-    "Learn what Tailwind Visual Hub is, who it's for, and how the website builder and CSS generators work.",
-};
+export const metadata = pageMetadata(
+  "About",
+  "Learn what Tailwind Visual Hub is, who it's for, and how the website builder and CSS generators work.",
+  "/about"
+);
 
 const FEATURES = [
   {

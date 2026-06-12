@@ -23,7 +23,6 @@ import type {
   LandingSection,
   LandingSectionId,
   LandingTemplate,
-  LandingTier,
   PreviewViewport,
   SectionBg,
   SectionBlockData,
@@ -34,9 +33,6 @@ import {
   withActiveSections,
   defaultBlockData,
   newId,
-  normalizeSeo,
-  normalizePages,
-  ALL_SECTION_IDS,
   SECTION_LABELS,
 } from "@/lib/landing-model";
 import { hexToRgb } from "@/lib/css";
@@ -57,6 +53,16 @@ import { LandingSidebarBuild } from "@/components/tools/landing-sidebar-build";
 import { LandingSidebarLook } from "@/components/tools/landing-sidebar-look";
 import { LandingTemplateGallery } from "@/components/tools/landing-template-gallery";
 import { LandingPublishPanel } from "@/components/tools/landing-publish-panel";
+import { LandingPagesPanel } from "@/components/tools/landing-pages-panel";
+import { BuilderOnboarding, useBuilderOnboarding } from "@/components/tools/builder-onboarding";
+import { parseLanding } from "@/lib/landing-parse";
+import {
+  buildHtmlDocument,
+  codePenUrl,
+  htmlToJsxSnippet,
+  prepareExportHtml,
+} from "@/lib/landing-export";
+import { decodeShareConfig } from "@/lib/landing-model";
 import { TEMPLATE_CATALOG } from "@/lib/landing-template-catalog";
 import { WorkspaceLayout, WorkspaceToolbar, WorkspaceToolbarGroup } from "@/components/app-workspace";
 import { uiInputSm } from "@/lib/ui";
@@ -113,182 +119,25 @@ const COLOR_SWATCHES = [
   "#14B8A6",
 ];
 
-function normalizeBg(raw: unknown): SectionBg | undefined {
-  if (raw === "surface" || raw === "brand" || raw === "contrast") return raw;
-  return undefined;
-}
-
-/**
- * Validate a saved `sections` list. Duplicate section types are allowed;
- * each instance carries its own `uid`.
- */
-function normalizeSections(
-  config: Record<string, unknown>
-): LandingConfig["sections"] {
-  const raw = config.sections;
-  if (Array.isArray(raw)) {
-    return raw
-      .filter(
-        (s): s is LandingSection & { visible?: boolean } =>
-          !!s &&
-          typeof s === "object" &&
-          ALL_SECTION_IDS.includes((s as { id: LandingSectionId }).id)
-      )
-      .map((s, i) => {
-        const id = (s as { id: LandingSectionId }).id;
-        const rawData = (s as { data?: SectionBlockData }).data;
-        return {
-          uid:
-            typeof s.uid === "string" && s.uid ? s.uid : `${id}-${i}`,
-          id,
-          visible: s.visible !== false,
-          bg: normalizeBg(s.bg),
-          data:
-            rawData && typeof rawData === "object"
-              ? { ...defaultBlockData(id), ...rawData }
-              : defaultBlockData(id),
-        };
-      });
-  }
-  // Migrate legacy boolean flags.
-  const legacy = config as {
-    showFeatures?: boolean;
-    showPricing?: boolean;
-    showFooter?: boolean;
-  };
-  return [
-    { uid: "legacy-features", id: "features", visible: legacy.showFeatures !== false },
-    { uid: "legacy-pricing", id: "pricing", visible: legacy.showPricing !== false },
-    { uid: "legacy-footer", id: "footer", visible: legacy.showFooter !== false },
-  ];
-}
-
-function normalizeNavLinks(raw: unknown): string[] {
-  if (Array.isArray(raw)) {
-    const links = raw.filter((l): l is string => typeof l === "string");
-    if (links.length) return links;
-  }
-  return DEFAULT_LANDING.navLinks;
-}
-
-function normalizePricing(raw: unknown): LandingTier[] {
-  if (Array.isArray(raw)) {
-    const tiers = raw
-      .filter((t): t is LandingTier => !!t && typeof t === "object")
-      .map((t) => ({
-        name: String(t.name ?? "Plan"),
-        price: String(t.price ?? "$0"),
-        period: String(t.period ?? "/mo"),
-        featured: Boolean(t.featured),
-        perks: Array.isArray(t.perks)
-          ? t.perks.filter((p): p is string => typeof p === "string")
-          : [],
-      }));
-    if (tiers.length) return tiers;
-  }
-  return DEFAULT_PRICING;
-}
-
-function normalizeStrings(raw: unknown, fallback: string[]): string[] {
-  if (Array.isArray(raw)) {
-    const list = raw.filter((s): s is string => typeof s === "string");
-    if (list.length) return list;
-  }
-  return fallback;
-}
-
-function normalizeStats(raw: unknown): LandingConfig["stats"] {
-  if (Array.isArray(raw)) {
-    const list = raw
-      .filter((s): s is LandingConfig["stats"][number] => !!s && typeof s === "object")
-      .map((s) => ({ value: String(s.value ?? ""), label: String(s.label ?? "") }));
-    if (list.length) return list;
-  }
-  return DEFAULT_STATS;
-}
-
-function normalizeFaq(raw: unknown): LandingConfig["faq"] {
-  if (Array.isArray(raw)) {
-    const list = raw
-      .filter((f): f is LandingConfig["faq"][number] => !!f && typeof f === "object")
-      .map((f) => ({ q: String(f.q ?? ""), a: String(f.a ?? "") }));
-    if (list.length) return list;
-  }
-  return DEFAULT_FAQ;
-}
-
-function parseLanding(config: Record<string, unknown>): LandingConfig {
-  const c = config as Partial<LandingConfig>;
-  const sections = normalizeSections(config);
-  const pages = normalizePages(config, sections);
-  const activePageId =
-    typeof c.activePageId === "string" && pages.some((p) => p.id === c.activePageId)
-      ? c.activePageId
-      : pages[0].id;
-  const activeSections =
-    pages.find((p) => p.id === activePageId)?.sections ?? sections;
-  return finalizeLanding({
-    ...DEFAULT_LANDING,
-    ...c,
-    heroAlign: c.heroAlign === "left" ? "left" : "center",
-    density: c.density === "compact" || c.density === "spacious" ? c.density : "cozy",
-    showNav: c.showNav !== false,
-    showHero: c.showHero !== false,
-    showHeroVisual: c.showHeroVisual !== false,
-    heroImage: typeof c.heroImage === "string" ? c.heroImage : "",
-    featureColumns:
-      c.featureColumns === 2 || c.featureColumns === 4 ? c.featureColumns : 3,
-    statsColumns:
-      c.statsColumns === 2 || c.statsColumns === 3 ? c.statsColumns : 4,
-    showSecondaryCta: c.showSecondaryCta !== false,
-    navLinks: normalizeNavLinks(config.navLinks),
-    pricing: normalizePricing(config.pricing),
-    stats: normalizeStats(config.stats),
-    logos: normalizeStrings(config.logos, DEFAULT_LOGOS),
-    faq: normalizeFaq(config.faq),
-    sections: activeSections,
-    pages,
-    activePageId,
-    seo: normalizeSeo(config.seo, { ...DEFAULT_LANDING, ...c }),
-  });
-}
-
-function buildHtmlDocument(cfg: LandingConfig, pageHtml: string): string {
-  const slug = (cfg.brandName || "acme").toLowerCase().replace(/\s+/g, "");
-  const title = cfg.seo?.metaTitle || cfg.brandName || "Acme";
-  const desc = cfg.seo?.metaDescription || cfg.heroSubtitle || "";
-  const og = cfg.seo?.ogImage || cfg.heroImage || "";
-  return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${title}</title>
-  <meta name="description" content="${desc}" />
-  ${og ? `<meta property="og:image" content="${og}" />` : ""}
-  <!-- Layout utility classes are resolved by the Tailwind Play CDN. -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>*{box-sizing:border-box}body{margin:0}</style>
-</head>
-<body>
-<!-- ${slug}.com — generated with Tailwind Visual Hub -->
-${pageHtml}
-</body>
-</html>`;
-}
-
 /* --------------------------------- Tool ----------------------------------- */
 
 export function LandingBuilder({
   showToast,
   onCopy,
+  initialTemplate,
+  remixEncoded,
 }: {
   showToast: (msg: string, ok?: boolean) => void;
   onCopy: (text: string) => void;
+  initialTemplate?: string | null;
+  remixEncoded?: string | null;
 }) {
   const [cfg, setCfg] = React.useState<LandingConfig>(DEFAULT_LANDING);
   const [name, setName] = React.useState("");
+  const [sidebarTab, setSidebarTab] = React.useState("build");
+  const [showOnboarding, dismissOnboarding] = useBuilderOnboarding();
   const previewRef = React.useRef<HTMLDivElement>(null);
+  const bootstrapped = React.useRef(false);
 
   /* ----------------------------- Undo / redo ------------------------------ */
   // Tracks cfg changes via effect so every mutation path is undoable.
@@ -336,6 +185,27 @@ export function LandingBuilder({
   );
 
   const { saving, save, reloadSignal } = useSaveDesign("landing", showToast);
+
+  React.useEffect(() => {
+    if (bootstrapped.current) return;
+    bootstrapped.current = true;
+    if (remixEncoded) {
+      const decoded = decodeShareConfig(remixEncoded);
+      if (decoded) {
+        setCfg(parseLanding(decoded as unknown as Record<string, unknown>));
+        dismissOnboarding();
+      }
+      return;
+    }
+    if (
+      initialTemplate &&
+      initialTemplate in LANDING_TEMPLATES &&
+      initialTemplate !== "scratch"
+    ) {
+      setCfg(finalizeLanding(LANDING_TEMPLATES[initialTemplate as LandingTemplate]));
+      dismissOnboarding();
+    }
+  }, [initialTemplate, remixEncoded, dismissOnboarding]);
 
   const applyConfig = React.useCallback((config: Record<string, unknown>) => {
     setCfg(parseLanding(config));
@@ -533,38 +403,37 @@ export function LandingBuilder({
     return () => window.removeEventListener("keydown", onKey);
   }, [undo, redo, selection, duplicateSection, removeSection]);
 
-  const exportHtml = React.useCallback(
-    (mode: "copy" | "download") => {
-      if (!previewRef.current) {
+  const getExportClone = React.useCallback(() => {
+    if (!previewRef.current) return null;
+    return prepareExportHtml(previewRef.current.cloneNode(true) as HTMLElement);
+  }, []);
+
+  const exportPage = React.useCallback(
+    (mode: "copy" | "download" | "inline" | "jsx" | "codepen") => {
+      const clone = getExportClone();
+      if (!clone) {
         showToast("Preview not ready yet", false);
         return;
       }
-      // Clone the rendered page and strip builder-only chrome so the export
-      // is a clean, static document.
-      const clone = previewRef.current.cloneNode(true) as HTMLElement;
-      clone.querySelectorAll("[data-ui]").forEach((el) => el.remove());
-      clone.querySelectorAll("[data-section-wrap]").forEach((el) => {
-        el.removeAttribute("data-section-wrap");
-        el.className = el.className.replace(/\bring-[^\s]+/g, "").trim();
-      });
-      clone.querySelectorAll("[data-edit]").forEach((el) => {
-        el.removeAttribute("contenteditable");
-        el.removeAttribute("spellcheck");
-        el.removeAttribute("data-edit");
-      });
-      // Preview uses @container variants; exported pages use normal viewport breakpoints.
-      clone.querySelectorAll("[class]").forEach((el) => {
-        const node = el as HTMLElement;
-        if (typeof node.className === "string") {
-          node.className = node.className
-            .replace(/@sm:/g, "sm:")
-            .replace(/@md:/g, "md:")
-            .replace(/@lg:/g, "lg:");
-        }
-      });
-      const doc = buildHtmlDocument(cfg, clone.outerHTML);
-      if (mode === "copy") {
+      const pageHtml = clone.outerHTML;
+      const title = cfg.seo?.metaTitle || cfg.brandName || "Landing page";
+
+      if (mode === "jsx") {
+        onCopy(htmlToJsxSnippet(pageHtml));
+        return;
+      }
+
+      const inline = mode === "inline";
+      const doc = buildHtmlDocument(cfg, pageHtml, { inlineTailwind: inline });
+
+      if (mode === "codepen") {
+        window.open(codePenUrl(doc, title), "_blank", "noopener,noreferrer");
+        showToast("Opened in CodePen");
+        return;
+      }
+      if (mode === "copy" || mode === "inline") {
         onCopy(doc);
+        showToast(mode === "inline" ? "Copied self-contained HTML" : "Copied HTML");
         return;
       }
       const blob = new Blob([doc], { type: "text/html" });
@@ -578,14 +447,19 @@ export function LandingBuilder({
       URL.revokeObjectURL(url);
       showToast("Downloaded HTML file");
     },
-    [cfg, onCopy, showToast]
+    [cfg, getExportClone, onCopy, showToast]
+  );
+
+  const exportHtml = React.useCallback(
+    (mode: "copy" | "download") => exportPage(mode),
+    [exportPage]
   );
 
   return (
     <>
       <WorkspaceLayout
         sidebar={
-          <Tabs defaultValue="build" className="flex h-full min-h-0 flex-col gap-0">
+          <Tabs value={sidebarTab} onValueChange={setSidebarTab} className="flex h-full min-h-0 flex-col gap-0">
             <TabsList className="sidebar-tabs grid h-auto w-full grid-cols-2 gap-1 sm:grid-cols-4">
               <TabsTrigger value="build" className="gap-1.5 text-[11px]">
                 <Plus weight="bold" className="size-3.5" />
@@ -610,6 +484,7 @@ export function LandingBuilder({
                 <LandingSidebarBuild
                   cfg={cfg}
                   selection={selection}
+                  onApplyCfg={setCfg}
                   onAddBlock={addSection}
                   onSelect={setSelection}
                   onToggleSection={toggleSection}
@@ -705,6 +580,12 @@ export function LandingBuilder({
               <Code weight="bold" className="size-3.5" />
               Copy HTML
             </Button>
+            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => exportPage("jsx")}>
+              JSX
+            </Button>
+            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => exportPage("codepen")}>
+              CodePen
+            </Button>
             <Button size="sm" variant="outline" className="gap-1.5" onClick={() => exportHtml("download")}>
               <DownloadSimple weight="bold" className="size-3.5" />
               <span className="hidden sm:inline">Download</span>
@@ -713,7 +594,16 @@ export function LandingBuilder({
         </WorkspaceToolbar>
 
         <div className="flex min-h-0 flex-1 flex-col gap-3 p-3 sm:p-4">
-          <div className="preview-frame flex min-h-[min(520px,60vh)] flex-1 flex-col">
+          <div className="preview-frame relative flex min-h-[min(520px,60vh)] flex-1 flex-col">
+            {showOnboarding && cfg.sections.length === 0 && cfg.template === "scratch" ? (
+              <BuilderOnboarding
+                onPickTemplate={() => {
+                  setSidebarTab("templates");
+                  dismissOnboarding();
+                }}
+                onDismiss={dismissOnboarding}
+              />
+            ) : null}
             <div className="preview-chrome">
               <div className="flex gap-1.5">
                 <span className="size-2.5 rounded-full bg-destructive/80" />

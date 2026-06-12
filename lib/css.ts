@@ -46,3 +46,44 @@ export function timeAgo(iso: string): string {
   const days = Math.round(hrs / 24);
   return `${days}d ago`;
 }
+
+/** Generate a simple 5-step palette from a base hex (lighter → base → darker). */
+export function generatePalette(baseHex: string): { hex: string; label: string; className: string }[] {
+  const { r, g, b } = hexToRgb(baseHex);
+  const steps = [
+    { t: 0.85, label: "50", suffix: "50" },
+    { t: 0.65, label: "200", suffix: "200" },
+    { t: 0, label: "500", suffix: "500" },
+    { t: -0.25, label: "700", suffix: "700" },
+    { t: -0.45, label: "900", suffix: "900" },
+  ];
+  return steps.map(({ t, label, suffix }) => {
+    const mix = t >= 0 ? 255 : 0;
+    const amount = Math.abs(t);
+    const nr = Math.round(r + (mix - r) * amount);
+    const ng = Math.round(g + (mix - g) * amount);
+    const nb = Math.round(b + (mix - b) * amount);
+    const hex = `#${[nr, ng, nb].map((c) => c.toString(16).padStart(2, "0")).join("")}`;
+    return { hex, label, className: `bg-[${hex.toUpperCase()}]` };
+  });
+}
+
+/** Map px font size to nearest Tailwind text-* token. */
+export function nearestTextSize(px: number): string {
+  const tokens: [number, string][] = [
+    [12, "text-xs"],
+    [14, "text-sm"],
+    [16, "text-base"],
+    [18, "text-lg"],
+    [20, "text-xl"],
+    [24, "text-2xl"],
+    [30, "text-3xl"],
+    [36, "text-4xl"],
+    [48, "text-5xl"],
+  ];
+  let best = tokens[0];
+  for (const t of tokens) {
+    if (Math.abs(t[0] - px) < Math.abs(best[0] - px)) best = t;
+  }
+  return best[1];
+}

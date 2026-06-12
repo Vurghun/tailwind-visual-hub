@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { getAdSenseClient, isAdSenseConfigured } from "@/lib/ads-config";
+import { SITE } from "@/lib/site";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -21,9 +22,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tailwind Visual Hub — Website Builder & CSS Generators",
-  description:
-    "Build landing pages, craft box-shadow and glass effects, and generate Tailwind CSS — visually, in the browser.",
+  title: {
+    default: `${SITE.name} — Website Builder & CSS Generators`,
+    template: `%s — ${SITE.name}`,
+  },
+  description: SITE.description,
+  metadataBase: new URL(SITE.url),
+  openGraph: {
+    title: SITE.name,
+    description: SITE.description,
+    url: SITE.url,
+    siteName: SITE.name,
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE.name,
+    description: SITE.description,
+  },
 };
 
 const themeScript = `(function(){try{var k='tvh-theme',s=localStorage.getItem(k),d=document.documentElement;if(s==='light')d.classList.remove('dark');else d.classList.add('dark');}catch(e){document.documentElement.classList.add('dark');}})();`;
@@ -42,7 +59,6 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
-        {/* beforeInteractive → injected into <head> in raw HTML, not React-hydrated */}
         <Script
           id="tvh-theme"
           strategy="beforeInteractive"
@@ -51,7 +67,7 @@ export default function RootLayout({
         {adsenseClient ? (
           <Script
             id="adsense-client"
-            strategy="beforeInteractive"
+            strategy="lazyOnload"
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
             crossOrigin="anonymous"

@@ -1,15 +1,16 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { Envelope, GithubLogo, ChatCircle } from "@phosphor-icons/react/dist/ssr";
 
 import { ContactForm } from "@/components/contact-form";
 import { MarketingLayout } from "@/components/site-shell";
+import { pageMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: `Contact — ${SITE.name}`,
-  description: `Get in touch with the ${SITE.name} team — questions, feedback, or partnership ideas.`,
-};
+export const metadata = pageMetadata(
+  "Contact",
+  `Get in touch with the ${SITE.name} team — questions, feedback, or partnership ideas.`,
+  "/contact"
+);
 
 export default function ContactPage() {
   return (

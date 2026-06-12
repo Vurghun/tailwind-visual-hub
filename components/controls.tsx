@@ -271,28 +271,53 @@ export function AdSlot({
   const slot = placement ? getAdSenseSlot(placement) : "";
   const showAd = isAdSenseConfigured() && Boolean(slot);
   const insRef = React.useRef<HTMLModElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = React.useState(false);
 
   React.useEffect(() => {
-    if (!showAd || !insRef.current) return;
+    const node = containerRef.current;
+    if (!node || !showAd) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "120px" }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [showAd]);
+
+  React.useEffect(() => {
+    if (!showAd || !visible || !insRef.current) return;
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch {
       /* ad blocker or script still loading */
     }
-  }, [showAd, client, slot]);
+  }, [showAd, visible, client, slot]);
 
   if (showAd) {
     return (
-      <div className="flex min-h-[220px] w-full items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/20 p-2 ring-1 ring-foreground/5">
-        <ins
-          ref={insRef}
-          className="adsbygoogle block w-full"
-          style={{ display: "block", minHeight: 200 }}
-          data-ad-client={client}
-          data-ad-slot={slot}
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        />
+      <div
+        ref={containerRef}
+        className="flex min-h-[220px] w-full items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/20 p-2 ring-1 ring-foreground/5"
+      >
+        {visible ? (
+          <ins
+            ref={insRef}
+            className="adsbygoogle block w-full"
+            style={{ display: "block", minHeight: 200 }}
+            data-ad-client={client}
+            data-ad-slot={slot}
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+          />
+        ) : (
+          <span className="text-[10px] text-muted-foreground">Loading ad…</span>
+        )}
       </div>
     );
   }

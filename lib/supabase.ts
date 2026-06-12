@@ -138,7 +138,12 @@ export type LandingTemplate =
   | "fitness"
   | "event"
   | "wedding"
-  | "nonprofit";
+  | "nonprofit"
+  | "dental"
+  | "legal"
+  | "spa"
+  | "podcast"
+  | "hotel";
 
 /** A single editable feature card. */
 export type LandingFeature = { title: string; desc: string };
@@ -210,7 +215,14 @@ export type LandingConfig = {
 };
 
 /** Identifiers for each tool in the hub (also used as the DB `tool` column). */
-export type ToolId = "landing" | "box-shadow" | "gradient";
+export type ToolId =
+  | "landing"
+  | "box-shadow"
+  | "gradient"
+  | "border-radius"
+  | "palette"
+  | "typography"
+  | "flexbox";
 
 /** A row from the `saved_components` table. */
 export type SavedComponent = {

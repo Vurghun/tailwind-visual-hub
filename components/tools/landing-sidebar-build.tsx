@@ -12,6 +12,7 @@ import type {
   SectionBlockData,
 } from "@/lib/supabase";
 import { TEMPLATE_SECTIONS, SECTION_LABELS, SECTION_BLURBS } from "@/lib/landing-model";
+import { LandingPagesPanel } from "@/components/tools/landing-pages-panel";
 import { LandingBlockPalette } from "@/components/tools/landing-block-palette";
 import { LandingLayersPanel } from "@/components/tools/landing-layers-panel";
 import { LandingInspectorPanel } from "@/components/tools/landing-inspector-panel";
@@ -56,6 +57,7 @@ function CollapsiblePanel({
 export function LandingSidebarBuild({
   cfg,
   selection,
+  onApplyCfg,
   onAddBlock,
   onSelect,
   onToggleSection,
@@ -68,6 +70,7 @@ export function LandingSidebarBuild({
 }: {
   cfg: LandingConfig;
   selection: LandingSelection;
+  onApplyCfg: (cfg: LandingConfig) => void;
   onAddBlock: (id: LandingSectionId) => void;
   onSelect: (sel: LandingSelection) => void;
   onToggleSection: (uid: string) => void;
@@ -80,6 +83,8 @@ export function LandingSidebarBuild({
 }) {
   return (
     <div className="flex flex-col">
+      <LandingPagesPanel cfg={cfg} onApply={onApplyCfg} showToast={showToast} />
+
       <PanelSection
         title="Insert block"
         description="Choose a type, then click it on the canvas to edit."
